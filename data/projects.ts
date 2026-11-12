@@ -67,7 +67,7 @@ export const projekte: Projekt[] = [
     kurz: "Next.js mit eigenem Partikel-Shader: Tausende Punkte formen sich beim Scrollen neu, dazu ein Beat aus der Web Audio API.",
     technik: ["Next.js", "TypeScript", "Three.js", "GLSL", "Motion"],
     farbe: "#D4FF3A",
-    github: "https://github.com/Curiosoofficial",
+    github: "https://github.com/Curiosoofficial/luka-stefanovic-portfolio",
   },
   {
     slug: "join",
