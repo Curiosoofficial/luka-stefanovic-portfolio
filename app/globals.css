@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* Farbwelt «Acid Pop» (siehe docs/KONZEPT.md) */
+@theme {
+  --color-tinte: #0b0b14;
+  --color-tinte-2: #14141f;
+  --color-papier: #f5f3ff;
+  --color-nebel: #a3a1bf;
+  --color-pink: #ff2e93;
+  --color-blau: #3d2bff;
+  --color-limette: #d4ff3a;
+  --color-orange: #ff7a1a;
+}
+
+@theme inline {
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  background: var(--color-tinte);
+  color: var(--color-papier);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-tinte);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--color-limette);
+  color: var(--color-tinte);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-limette);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Niedrige Desktop-Bildschirme (z. B. Laptop mit 768 px Höhe): kompakteres Projekt-Layout */
+@custom-variant flach (@media (min-width: 768px) and (max-height: 820px));
+
+/* Dezenter dunkler Schein hinter Text, damit er über den Partikeln lesbar bleibt */
+main :where(p, dd, li, h2, h3) {
+  text-shadow: 0 0 24px rgb(11 11 20 / 0.85);
+}
+
+/* Feine Körnung über allem, wie bei gedrucktem Papier */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)'/%3E%3C/svg%3E");
+}
+
+/* Hero-Titel: Buchstaben fliegen gestaffelt rein (reines CSS, läuft auch ohne JavaScript) */
+@keyframes buchstabe-rein {
+  from {
+    transform: translateY(0.6em) rotate(8deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.buchstabe {
+  display: inline-block;
+  animation: buchstabe-rein 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 40ms + 120ms);
+}
+
+/* Laufband: Inhalt ist doppelt vorhanden, -50 % verschiebt also genau eine Kopie */
+@keyframes laufband {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.laufband-spur {
+  animation: laufband var(--dauer, 40s) linear infinite;
+}
+
+.laufband:hover .laufband-spur {
+  animation-play-state: paused;
+}
+
+.laufband-rueckwaerts {
+  animation-direction: reverse;
+}
+
+/* Equalizer im Sound-Knopf */
+@keyframes eq {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.eq-balken {
+  transform-origin: bottom;
+  transform: scaleY(0.3);
+}
+
+[aria-pressed="true"] .eq-balken {
+  animation: eq 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.22s);
+}
+
+/* Eigener Cursor: nur aktiv, wenn JavaScript die Klasse setzt (Maus vorhanden, keine reduzierte Bewegung) */
+.cursor-teil {
+  display: none;
+}
+
+html.eigener-cursor .cursor-teil {
+  display: block;
+}
+
+html.eigener-cursor,
+html.eigener-cursor * {
+  cursor: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buchstabe,
+  .laufband-spur,
+  [aria-pressed="true"] .eq-balken {
+    animation: none;
+  }
+
+  .buchstabe {
+    opacity: 1;
+    transform: none;
+  }
+}
