@@ -34,7 +34,7 @@ const seitenUrl =
 
 const titel = `${profil.name} · ${profil.rolle} (${profil.stack}) in ${profil.ort}`;
 const beschreibung =
-  "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Tausende Partikel formen sich beim Scrollen neu.";
+  "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Eine gestrickte 3D-Welt aus Wolle und Filz, durch die man beim Scrollen reist.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(seitenUrl),
