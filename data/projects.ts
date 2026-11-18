@@ -50,13 +50,12 @@ export const projekte: Projekt[] = [
     slug: "snapgram",
     titel: "Snapgram",
     art: "Tutorial",
-    hinweis: "Nachgebaut nach JS Mastery",
-    kurz: "Social-Media-App im Stil von Instagram: Fotos posten, liken und speichern, Suche und Profile.",
-    // Stand von main und der Live-Version (2023, Backend Appwrite). Die Überarbeitung mit eigenem Backend
-    // (Vercel Functions + Neon Postgres) liegt auf dem Branch «ueberarbeitung-2026». Nach dem Merge Technik anpassen.
-    technik: ["React", "TypeScript", "Vite", "TanStack Query", "Appwrite"],
+    // Frontend nach dem JS-Mastery-Tutorial (2023), eigenes Backend 2026 mit KI-Hilfe ergänzt (siehe README im Repo)
+    hinweis: "JS Mastery, KI-gestützt erweitert",
+    kurz: "Social-Media-App im Stil von Instagram: Fotos posten, liken, speichern und Leuten folgen, mit Demo-Login.",
+    technik: ["React", "TypeScript", "TanStack Query", "Node.js", "PostgreSQL"],
     farbe: "#3A86D8",
-    live: "https://snapgram-eta.vercel.app/",
+    live: "https://snapgram-woad.vercel.app/",
     github: "https://github.com/Curiosoofficial/snapgram",
   },
   {
@@ -65,10 +64,9 @@ export const projekte: Projekt[] = [
     art: "Tutorial",
     hinweis: "Nachgebaut nach Code With Antonio",
     kurz: "Sprachlern-App im Stil von Duolingo: Lektionen mit Aufgaben, Rangliste, Quests und Shop mit Stripe.",
-    technik: ["Next.js 14", "TypeScript", "Drizzle", "Clerk", "Stripe"],
+    technik: ["Next.js 16", "TypeScript", "Drizzle", "Clerk", "Stripe"],
     farbe: "#5BB54A",
-    // PLATZHALTER: Live-Version unter lingo-nine-iota.vercel.app antwortet zurzeit mit Fehler 500 (MIDDLEWARE_INVOCATION_FAILED, Clerk).
-    // Nach der Reparatur hier wieder eintragen: live: "https://lingo-nine-iota.vercel.app",
+    live: "https://lingo-nine-iota.vercel.app/",
     github: "https://github.com/Curiosoofficial/lingo",
   },
 
