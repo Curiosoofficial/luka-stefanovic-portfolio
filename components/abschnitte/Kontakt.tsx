@@ -27,7 +27,7 @@ function KopierKnopf() {
           // Ohne Zwischenablage-Zugriff bleibt der mailto-Link daneben
         }
       }}
-      className="rounded-full border-2 border-tinte px-6 py-3.5 text-lg font-semibold transition-colors hover:bg-tinte hover:text-pink"
+      className="rounded-full border-2 border-schrift px-6 py-3.5 text-lg font-semibold transition-colors hover:bg-schrift hover:text-pink"
     >
       <span aria-live="polite">{kopiert ? "Kopiert ✓" : "E-Mail kopieren"}</span>
     </button>
@@ -60,21 +60,17 @@ export function Kontakt() {
         {/* Teil 1: dunkel, rechts das @ aus Punkten */}
         <div className="flex h-svh flex-col justify-center px-4 md:px-8">
           <div className="mx-auto grid w-full max-w-7xl gap-12 md:grid-cols-2">
-            <div>
-              <p className="font-mono text-xs tracking-[0.25em] text-nebel uppercase">
-                <span className="text-limette">05</span> / Kontakt
-              </p>
-              <h2 className="mt-4 font-display text-[clamp(3.2rem,8vw,7.5rem)] leading-[0.88] font-extrabold tracking-[-0.03em]">
+            <div className="ohne-schein stoff-schatten relative -rotate-1 rounded-2xl bg-wolle p-6 md:p-10">
+              <span aria-hidden className="klebeband -top-3 left-12 w-28 -rotate-6" />
+              <p className="inline-block -rotate-2 font-hand text-3xl leading-none text-akzent">Nr. 05 · Kontakt</p>
+              <h2 className="mt-3 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[0.9] font-bold tracking-[-0.02em]">
                 Lass uns was <span className="text-pink">bauen.</span>
               </h2>
-              <p className="mt-6 max-w-md text-lg text-papier/80">
+              <p className="mt-5 max-w-md text-lg font-semibold text-schrift/85">
                 Ich suche eine Stelle als Junior Frontend-Entwickler in Zürich und Umgebung.
               </p>
-              <motion.p
-                style={ruhig ? undefined : { opacity: hinweis }}
-                className="mt-10 font-mono text-[11px] tracking-[0.2em] text-nebel uppercase"
-              >
-                Weiterscrollen <span aria-hidden>↓</span>
+              <motion.p style={ruhig ? undefined : { opacity: hinweis }} className="mt-6 font-hand text-2xl text-leise">
+                Weiterscrollen ↓
               </motion.p>
             </div>
           </div>
@@ -82,18 +78,14 @@ export function Kontakt() {
 
         {/* Teil 2: pinke Farbflut */}
         <motion.div
-          style={{
-            backgroundImage: "radial-gradient(circle at 1px 1px, rgba(11,11,20,0.16) 1px, transparent 0)",
-            backgroundSize: "16px 16px",
-            ...(ruhig ? {} : { clipPath: flut }),
-          }}
-          className={`ohne-schein flex flex-col justify-center overflow-hidden bg-pink px-4 text-tinte md:px-8 ${
+          style={ruhig ? undefined : { clipPath: flut }}
+          className={`filz ohne-schein flex flex-col justify-center overflow-hidden bg-pink px-4 text-schrift md:px-8 ${
             ruhig ? "relative min-h-svh py-24" : "absolute inset-0"
           }`}
         >
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-32 -bottom-40 size-[36rem] rounded-full border-[60px] border-tinte/10"
+            className="pointer-events-none absolute -right-32 -bottom-40 size-[36rem] rounded-full border-[60px] border-schrift/10"
           />
           <div className="relative mx-auto w-full max-w-7xl">
             <p className="font-mono text-xs tracking-[0.25em] uppercase">Kontakt · {profil.ort}</p>
@@ -113,7 +105,7 @@ export function Kontakt() {
                 <MagnetKnopf
                   href={`mailto:${profil.email}`}
                   staerke={0.2}
-                  className="gap-3 rounded-full bg-tinte px-7 py-4 text-lg font-semibold text-papier"
+                  className="gap-3 rounded-full bg-schrift px-7 py-4 text-lg font-semibold text-wolle"
                 >
                   {profil.email}
                   <span aria-hidden>↗</span>

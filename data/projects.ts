@@ -1,5 +1,7 @@
 // Alle Projekte an einem Ort. Neue Projekte hier eintragen, die Seite passt sich an.
 // Ehrlichkeit zuerst: Kundenseiten mit Lovable, Bootcamp- und Tutorial-Projekte sind klar gekennzeichnet.
+// Reihenfolge: grosse Web-Apps (Next.js und React), El Pollo Loco, Curiosolution samt Kundenprojekten, Join, zuletzt dieses Portfolio.
+// Texte kurz halten (Beschreibung um 100 Zeichen, höchstens 5 Technik-Stichworte): Alle Karten sind gleich hoch.
 
 export type ProjektArt = "Kundenprojekt" | "Eigenes Projekt" | "Bootcamp" | "Tutorial";
 
@@ -11,8 +13,9 @@ export type Projekt = {
   hinweis?: string;
   kurz: string;
   technik: string[];
-  /** Akzentfarbe: färbt das Cover und die Partikel-Welle, solange die Karte sichtbar ist */
+  /** Akzentfarbe: färbt das Filz-Cover der Karte */
   farbe: string;
+  /** Öffentliche Adresse der ganzen Seite, öffnet sich in einem neuen Tab */
   live?: string;
   github?: string;
   /** Screenshot in public/projekte/, z. B. "/projekte/mampfi.jpg". Ohne Bild gibt es ein Farb-Cover. */
@@ -20,6 +23,81 @@ export type Projekt = {
 };
 
 export const projekte: Projekt[] = [
+  // ------------------------------------------------------------------ Grosse Web-Apps
+  {
+    slug: "airbnb",
+    titel: "Airbnb Klon",
+    art: "Tutorial",
+    hinweis: "Video-Tutorial, KI-gestützt erweitert",
+    kurz: "Unterkünfte suchen, auf der Karte finden und mit Kalender buchen, dazu Bewertungen und eigene Inserate.",
+    technik: ["Next.js 16", "TypeScript", "Prisma", "Supabase", "Kinde Auth"],
+    farbe: "#EE4F86",
+    live: "https://airbnb-klon-curioso.vercel.app/",
+    github: "https://github.com/Curiosoofficial/airbnb",
+  },
+  {
+    slug: "stack-overflow",
+    titel: "Stack Overflow Klon",
+    art: "Tutorial",
+    hinweis: "Nachgebaut nach JS Mastery",
+    kurz: "Frage-Antwort-Plattform mit Code-Beispielen, Abstimmen, Tags, Suche und Profilen mit Reputation.",
+    technik: ["Next.js 16", "TypeScript", "MongoDB", "Clerk", "Zod"],
+    farbe: "#F48A35",
+    live: "https://stack-overflow-next14-nu.vercel.app/",
+    github: "https://github.com/Curiosoofficial/stack_overflow_next14",
+  },
+  {
+    slug: "snapgram",
+    titel: "Snapgram",
+    art: "Tutorial",
+    hinweis: "Nachgebaut nach JS Mastery",
+    kurz: "Social-Media-App im Stil von Instagram: Fotos posten, liken und speichern, Suche und Profile.",
+    // Stand von main und der Live-Version (2023, Backend Appwrite). Die Überarbeitung mit eigenem Backend
+    // (Vercel Functions + Neon Postgres) liegt auf dem Branch «ueberarbeitung-2026». Nach dem Merge Technik anpassen.
+    technik: ["React", "TypeScript", "Vite", "TanStack Query", "Appwrite"],
+    farbe: "#3A86D8",
+    live: "https://snapgram-eta.vercel.app/",
+    github: "https://github.com/Curiosoofficial/snapgram",
+  },
+  {
+    slug: "lingo",
+    titel: "Lingo",
+    art: "Tutorial",
+    hinweis: "Nachgebaut nach Code With Antonio",
+    kurz: "Sprachlern-App im Stil von Duolingo: Lektionen mit Aufgaben, Rangliste, Quests und Shop mit Stripe.",
+    technik: ["Next.js 14", "TypeScript", "Drizzle", "Clerk", "Stripe"],
+    farbe: "#5BB54A",
+    // PLATZHALTER: Live-Version unter lingo-nine-iota.vercel.app antwortet zurzeit mit Fehler 500 (MIDDLEWARE_INVOCATION_FAILED, Clerk).
+    // Nach der Reparatur hier wieder eintragen: live: "https://lingo-nine-iota.vercel.app",
+    github: "https://github.com/Curiosoofficial/lingo",
+  },
+
+  // ------------------------------------------------------------------ Spiel
+  {
+    slug: "el-pollo-loco",
+    titel: "El Pollo Loco",
+    art: "Bootcamp",
+    hinweis: "Developer Akademie",
+    kurz: "2D-Jump-and-Run im Browser, objektorientiert in reinem JavaScript.",
+    technik: ["JavaScript", "OOP", "Canvas"],
+    farbe: "#F48A35",
+    live: "https://curiosoofficial.github.io/ell-pollo-loco-final/",
+    github: "https://github.com/Curiosoofficial/ell-pollo-loco-final",
+  },
+
+  // ------------------------------------------------------------------ Curiosolution und Kundenprojekte
+  {
+    slug: "curiosolution",
+    titel: "Curiosolution",
+    art: "Eigenes Projekt",
+    hinweis: "Live neuer als der Code",
+    kurz: "Website meiner Firma: Leistungen, Webdesign-Angebot, Preise, Portfolio und Kontakt.",
+    technik: ["Next.js 14", "TypeScript", "Tailwind CSS", "Framer Motion"],
+    farbe: "#8C5BE0",
+    // Die heutige curiosolution.com ist ein neuerer Stand als der Code auf GitHub (siehe Hinweis)
+    live: "https://curiosolution.com/",
+    github: "https://github.com/Curiosoofficial/curiosolution",
+  },
   {
     slug: "mampfi",
     titel: "Mampfi Dübendorf",
@@ -27,7 +105,7 @@ export const projekte: Projekt[] = [
     hinweis: "React, KI-gestützt mit Lovable",
     kurz: "Restaurant-Website mit Speisekarte und Online-Bestellung.",
     technik: ["React", "Tailwind CSS", "Lovable"],
-    farbe: "#FF7A1A",
+    farbe: "#F48A35",
     live: "https://restaurantmampfi.ch/",
   },
   {
@@ -37,7 +115,7 @@ export const projekte: Projekt[] = [
     hinweis: "React, KI-gestützt mit Lovable",
     kurz: "Mehrseitige Website, Mobile-First, lokales SEO und ein Offertformular.",
     technik: ["React", "Tailwind CSS", "SEO", "Lovable"],
-    farbe: "#D4FF3A",
+    farbe: "#FFC93C",
     live: "https://birac.ch/",
   },
   {
@@ -47,7 +125,7 @@ export const projekte: Projekt[] = [
     hinweis: "React, KI-gestützt mit Lovable",
     kurz: "Zweisprachiger Onepager (DE/EN) mit Anfrageformular.",
     technik: ["React", "Tailwind CSS", "i18n", "Lovable"],
-    farbe: "#3D2BFF",
+    farbe: "#3A86D8",
     live: "https://hls-cp.com/",
   },
   {
@@ -57,18 +135,11 @@ export const projekte: Projekt[] = [
     // PLATZHALTER: Technik klären und unter «technik» eintragen
     kurz: "Website mit Projektgalerie, dazu Betreuung der Social-Media-Kanäle.",
     technik: ["Webdesign", "Galerie", "Social Media"],
-    farbe: "#FF2E93",
+    farbe: "#EE4F86",
     live: "https://raumkonzeptedurisch.ch/",
   },
-  {
-    slug: "portfolio",
-    titel: "Dieses Portfolio",
-    art: "Eigenes Projekt",
-    kurz: "Next.js mit eigenem Partikel-Shader: Tausende Punkte formen sich beim Scrollen neu, dazu ein Beat aus der Web Audio API.",
-    technik: ["Next.js", "TypeScript", "Three.js", "GLSL", "Motion"],
-    farbe: "#D4FF3A",
-    github: "https://github.com/Curiosoofficial/luka-stefanovic-portfolio",
-  },
+
+  // ------------------------------------------------------------------ Zuletzt
   {
     slug: "join",
     titel: "Join",
@@ -76,18 +147,17 @@ export const projekte: Projekt[] = [
     hinweis: "Developer Akademie",
     kurz: "Kanban-Taskmanager mit Board, Aufgaben und Kontakten.",
     technik: ["HTML", "CSS", "JavaScript"],
-    farbe: "#3D2BFF",
+    farbe: "#3A86D8",
+    live: "https://curiosoofficial.github.io/Join-App/",
     github: "https://github.com/Curiosoofficial/Join-App",
   },
   {
-    slug: "el-pollo-loco",
-    titel: "El Pollo Loco",
-    art: "Bootcamp",
-    hinweis: "Developer Akademie",
-    kurz: "2D-Jump-and-Run im Browser, objektorientiert in reinem JavaScript.",
-    technik: ["JavaScript", "OOP", "Canvas"],
-    farbe: "#FF7A1A",
-    github: "https://github.com/Curiosoofficial/ell-pollo-loco-final",
+    slug: "portfolio",
+    titel: "Dieses Portfolio",
+    art: "Eigenes Projekt",
+    kurz: "Next.js mit einer gestrickten 3D-Welt aus Three.js, durch die man beim Scrollen nach unten reist.",
+    technik: ["Next.js", "TypeScript", "Three.js", "React Three Fiber", "Motion"],
+    farbe: "#FFC93C",
+    github: "https://github.com/Curiosoofficial/luka-stefanovic-portfolio",
   },
-  // PLATZHALTER: Nächstes eigenes Next.js-Projekt hier eintragen, sobald es online ist.
 ];

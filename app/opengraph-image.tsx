@@ -6,7 +6,7 @@ export const alt = `${profil.name}, ${profil.rolle} (${profil.stack}) in ${profi
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const FARBEN = ["#FF2E93", "#3D2BFF", "#D4FF3A", "#FF7A1A"];
+const FARBEN = ["#EE4F86", "#3A86D8", "#FFC93C", "#F48A35"];
 
 /** Galaxie aus Punkten, mit festem Zufall, damit das Bild immer gleich aussieht */
 function punkte() {
@@ -37,8 +37,8 @@ export default function Bild() {
           height: "100%",
           display: "flex",
           position: "relative",
-          background: "#0b0b14",
-          color: "#f5f3ff",
+          background: "#2E1F15",
+          color: "#FFF8EE",
           fontFamily: "sans-serif",
         }}
       >
@@ -58,7 +58,7 @@ export default function Bild() {
           />
         ))}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 72 }}>
-          <div style={{ display: "flex", fontSize: 22, letterSpacing: 4, color: "#d4ff3a", textTransform: "uppercase" }}>
+          <div style={{ display: "flex", fontSize: 22, letterSpacing: 4, color: "#FFC93C", textTransform: "uppercase" }}>
             {profil.status}
           </div>
           <div style={{ display: "flex", fontSize: 104, fontWeight: 800, lineHeight: 1, marginTop: 20 }}>

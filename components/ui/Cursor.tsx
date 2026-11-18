@@ -47,12 +47,12 @@ export function Cursor() {
     <>
       <motion.div
         aria-hidden
-        className="cursor-teil pointer-events-none fixed top-0 left-0 z-[80] size-2 rounded-full bg-limette"
+        className="cursor-teil pointer-events-none fixed top-0 left-0 z-[80] size-2 rounded-full bg-gelb"
         style={{ x, y, translateX: "-50%", translateY: "-50%" }}
       />
       <motion.div
         aria-hidden
-        className="cursor-teil pointer-events-none fixed top-0 left-0 z-[80] rounded-full border border-papier/60"
+        className="cursor-teil pointer-events-none fixed top-0 left-0 z-[80] rounded-full border border-schrift/60"
         style={{ x: ringX, y: ringY, translateX: "-50%", translateY: "-50%" }}
         animate={{
           width: ueberLink ? 64 : 34,

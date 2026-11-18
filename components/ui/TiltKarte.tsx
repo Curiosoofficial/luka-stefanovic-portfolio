@@ -10,6 +10,8 @@ type Props = {
   farbe?: string;
   /** Maximale Neigung in Grad */
   neigung?: number;
+  /** Spotlight und Rand über statt unter den Inhalt legen (nötig, wenn der Inhalt einen 3D-Körper hat) */
+  effekteVorne?: boolean;
 };
 
 /**
@@ -17,7 +19,7 @@ type Props = {
  * die der Maus folgen. Inspiriert von Aceternity UI, aber selbst gebaut:
  * Die Mausposition landet als CSS-Variable (--sx, --sy) auf der Karte, die Verläufe lesen sie aus.
  */
-export function TiltKarte({ children, className = "", farbe = "#D4FF3A", neigung = 8 }: Props) {
+export function TiltKarte({ children, className = "", farbe = "#FFC93C", neigung = 8, effekteVorne = false }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const drehX = useSpring(0, { stiffness: 180, damping: 18 });
   const drehY = useSpring(0, { stiffness: 180, damping: 18 });
@@ -29,26 +31,8 @@ export function TiltKarte({ children, className = "", farbe = "#D4FF3A", neigung
     "--farbe": farbe,
   } as MotionStyle;
 
-  return (
-    <motion.div
-      ref={ref}
-      style={style}
-      onPointerMove={(e) => {
-        if (e.pointerType !== "mouse" || !ref.current) return;
-        const r = ref.current.getBoundingClientRect();
-        const px = (e.clientX - r.left) / r.width;
-        const py = (e.clientY - r.top) / r.height;
-        drehY.set((px - 0.5) * neigung * 2);
-        drehX.set(-(py - 0.5) * neigung * 2);
-        ref.current.style.setProperty("--sx", `${px * 100}%`);
-        ref.current.style.setProperty("--sy", `${py * 100}%`);
-      }}
-      onPointerLeave={() => {
-        drehX.set(0);
-        drehY.set(0);
-      }}
-      className={`group relative ${className}`}
-    >
+  const effekte = (
+    <>
       {/* Spotlight auf der Fläche */}
       <div
         aria-hidden
@@ -70,7 +54,32 @@ export function TiltKarte({ children, className = "", farbe = "#D4FF3A", neigung
           maskComposite: "exclude",
         }}
       />
+    </>
+  );
+
+  return (
+    <motion.div
+      ref={ref}
+      style={style}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" || !ref.current) return;
+        const r = ref.current.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        drehY.set((px - 0.5) * neigung * 2);
+        drehX.set(-(py - 0.5) * neigung * 2);
+        ref.current.style.setProperty("--sx", `${px * 100}%`);
+        ref.current.style.setProperty("--sy", `${py * 100}%`);
+      }}
+      onPointerLeave={() => {
+        drehX.set(0);
+        drehY.set(0);
+      }}
+      className={`group relative ${className}`}
+    >
+      {!effekteVorne && effekte}
       <div className="relative h-full">{children}</div>
+      {effekteVorne && effekte}
     </motion.div>
   );
 }

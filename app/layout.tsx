@@ -1,24 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Fredoka, Nunito } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { profil } from "@/data/profil";
 import { Providers } from "@/components/Providers";
-import { PartikelBuehne } from "@/components/partikel/PartikelBuehne";
+import { WeltBuehne } from "@/components/welt/WeltBuehne";
 import { Cursor } from "@/components/ui/Cursor";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Titel: rund und dick, wie aus Filz ausgeschnitten
+const fredoka = Fredoka({
+  variable: "--font-fredoka",
   subsets: ["latin", "latin-ext"],
 });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Fliesstext und Etiketten: rund, aber gut lesbar
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin", "latin-ext"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Handschrift für Notizen und Labels
+const caveat = Caveat({
+  variable: "--font-caveat",
   subsets: ["latin", "latin-ext"],
 });
 
@@ -50,24 +53,24 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0b14",
-  colorScheme: "dark",
+  themeColor: "#f4e8d4",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="de-CH"
-      className={`${bricolage.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} antialiased`}
     >
       <body className="min-h-svh">
         <a
           href="#inhalt"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-limette focus:px-4 focus:py-2 focus:text-tinte"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-gelb focus:px-4 focus:py-2 focus:text-schrift"
         >
           Zum Inhalt springen
         </a>
-        <PartikelBuehne />
+        <WeltBuehne />
         <Providers>{children}</Providers>
         <Cursor />
       </body>

@@ -1,5 +1,7 @@
 import { SoundKnopf } from "@/components/sound/SoundKnopf";
+import { Knopf } from "@/components/ui/Knopf";
 import { profil } from "@/data/profil";
+import { NavLeiste } from "./NavLeiste";
 
 const links = [
   { href: "#ueber-mich", label: "Über mich" },
@@ -8,36 +10,40 @@ const links = [
   { href: "#spielplatz", label: "Spielplatz" },
 ];
 
+/**
+ * Navigation als schwebende, halbdurchsichtige Pille mit Naht-Rand.
+ * Beim Runterscrollen gleitet sie weg, beim Hochscrollen kommt sie zurück (siehe NavLeiste).
+ */
 export function Navigation() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-papier/5 bg-tinte/70 backdrop-blur-md">
+    <NavLeiste>
       <nav
         aria-label="Hauptnavigation"
-        className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-8"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full border-2 border-dashed border-schrift/15 bg-grund/75 px-3 py-2 shadow-[0_10px_30px_-14px_rgba(46,31,21,0.45)] backdrop-blur-md md:px-4"
       >
-        <a href="#start" className="font-display text-xl font-extrabold tracking-tight">
+        <a href="#start" className="flex items-center gap-2 font-display text-2xl font-bold tracking-tight">
+          <Knopf farbe="#EE4F86" groesse={28} />
           {profil.vorname}
-          <span className="text-pink">.</span>
         </a>
-        <ul className="hidden items-center gap-7 font-mono text-xs tracking-[0.2em] text-nebel uppercase lg:flex">
+        <ul className="hidden items-center gap-7 text-sm font-extrabold tracking-[0.12em] text-schrift/75 uppercase lg:flex">
           {links.map((link) => (
             <li key={link.href}>
-              <a href={link.href} className="transition-colors hover:text-papier">
+              <a href={link.href} className="transition-colors hover:text-akzent">
                 {link.label}
               </a>
             </li>
           ))}
         </ul>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <SoundKnopf />
           <a
             href="#kontakt"
-            className="rounded-full bg-limette px-4 py-2 text-sm font-semibold text-tinte transition-transform hover:scale-105"
+            className="bastel-knopf filz rounded-full bg-gelb px-5 py-2 text-sm font-extrabold text-schrift [--kante:#c9951a]"
           >
             Kontakt
           </a>
         </div>
       </nav>
-    </header>
+    </NavLeiste>
   );
 }

@@ -1,74 +1,158 @@
 @import "tailwindcss";
 
-/* Farbwelt «Acid Pop» (siehe docs/KONZEPT.md) */
+/* Farbwelt «Wolle und Karton» (siehe docs/KONZEPT.md) */
 @theme {
-  --color-tinte: #0b0b14;
-  --color-tinte-2: #14141f;
-  --color-papier: #f5f3ff;
-  --color-nebel: #a3a1bf;
-  --color-pink: #ff2e93;
-  --color-blau: #3d2bff;
-  --color-limette: #d4ff3a;
-  --color-orange: #ff7a1a;
+  --color-grund: #f4e8d4; /* Packpapier, Hintergrund der Seite */
+  --color-grund-2: #ebdcc2;
+  --color-wolle: #fff8ee; /* warmes Weiss, Schrift auf dunklem Filz */
+  --color-schrift: #2e1f15; /* Kaffeebraun */
+  --color-leise: #7b6450; /* gedämpfte Schrift */
+  --color-akzent: #c8366a; /* dunkles Pink für kleine Labels, gut lesbar auf Packpapier */
+  --color-karton: #c99a66;
+  --color-karton-dunkel: #8f6338;
+  /* Garnfarben */
+  --color-pink: #ee4f86;
+  --color-orange: #f48a35;
+  --color-gelb: #ffc93c;
+  --color-gruen: #5bb54a;
+  --color-blau: #3a86d8;
+  --color-lila: #8c5be0;
 }
 
 @theme inline {
-  --font-display: var(--font-bricolage);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fredoka);
+  --font-sans: var(--font-nunito);
+  --font-hand: var(--font-caveat);
+  /* Im Bastel-Design ist «font-mono» die Etiketten-Schrift für kleine Labels */
+  --font-mono: var(--font-nunito);
 }
 
 html {
-  background: var(--color-tinte);
-  color: var(--color-papier);
-  color-scheme: dark;
+  background: var(--color-grund);
+  color: var(--color-schrift);
+  color-scheme: light;
 }
 
 body {
-  background: var(--color-tinte);
+  background: var(--color-grund);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 ::selection {
-  background: var(--color-limette);
-  color: var(--color-tinte);
+  background: var(--color-gelb);
+  color: var(--color-schrift);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-limette);
-  outline-offset: 3px;
-  border-radius: 6px;
+  outline: 3px dashed var(--color-akzent);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
-/* Niedrige Desktop-Bildschirme (z. B. Laptop mit 768 px Höhe): kompakteres Projekt-Layout */
+/* Niedrige Desktop-Bildschirme (z. B. Laptop mit 768 px Höhe): kompakteres Layout */
 @custom-variant flach (@media (min-width: 768px) and (max-height: 820px));
 
-/* Dezenter dunkler Schein hinter Text, damit er über den Partikeln lesbar bleibt */
+/* Heller Schein hinter Text, damit er über den Knöpfen lesbar bleibt */
 main :where(p, dd, li, h2, h3) {
-  text-shadow: 0 0 24px rgb(11 11 20 / 0.85);
+  text-shadow:
+    0 0 16px rgb(244 232 212 / 0.95),
+    0 0 3px rgb(244 232 212 / 0.9);
 }
 
-/* Auf knalligen Farbflächen kein dunkler Schein */
+/* Auf Filz, Karton und Farbflächen kein Schein */
 .ohne-schein,
 .ohne-schein * {
   text-shadow: none;
 }
 
-/* Feine Körnung über allem, wie bei gedrucktem Papier */
+/* Papierstruktur über allem */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.07;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='k'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23k)'/%3E%3C/svg%3E");
 }
 
-/* Hero-Titel: Buchstaben fliegen gestaffelt rein (reines CSS, läuft auch ohne JavaScript) */
+/*
+ * Bastel-Materialien. Alle Texturen sind kleine SVGs mit Rauschen (feTurbulence),
+ * keine Fotos: Sie laden sofort und passen sich jeder Hintergrundfarbe an.
+ */
+@layer components {
+  /* Filz: helle und dunkle Fusseln über der Hintergrundfarbe */
+  .filz {
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.4 -0.78'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.2 -0.66'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+    background-size:
+      180px 180px,
+      240px 240px;
+  }
+
+  /* Strick: Maschen in V-Form, halbtransparent, funktioniert auf jeder Farbe */
+  .strick {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22'%3E%3Cpath d='M10 21C6 19 2 12 3 3c3 2 6 9 7 18z' fill='rgba(255,255,255,0.18)' stroke='rgba(0,0,0,0.22)' stroke-width='1'/%3E%3Cpath d='M10 21c4-2 8-9 7-18-3 2-6 9-7 18z' fill='rgba(255,255,255,0.1)' stroke='rgba(0,0,0,0.22)' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 20px 22px;
+  }
+
+  /* Wellpappe: Rillen plus Fasern */
+  .wellpappe {
+    background-color: var(--color-karton);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.18 0 0 0 0 0.05 0 0 0 1.1 -0.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.08) 0 3px, rgb(0 0 0 / 0.07) 3px 7px);
+  }
+
+  /* Naht: gestrichelte Stiche, ein Stück vom Rand entfernt. Der Schatten lässt den Faden erhaben wirken. */
+  .naht::before {
+    content: "";
+    position: absolute;
+    inset: var(--naht-abstand, 10px);
+    border: 2.5px dashed var(--naht-farbe, rgb(255 248 238 / 0.85));
+    border-radius: inherit;
+    pointer-events: none;
+    filter: drop-shadow(0 1.5px 0.5px rgb(40 20 10 / 0.4));
+  }
+
+  /* Dicker Bastel-Knopf: dunklere Kante unten wirkt wie Material mit Dicke */
+  .bastel-knopf {
+    box-shadow:
+      0 5px 0 var(--kante, rgb(46 31 21 / 0.35)),
+      0 10px 18px rgb(60 35 15 / 0.22);
+  }
+
+  /* Weicher Stoff-Schatten für aufgenähte Flächen */
+  .stoff-schatten {
+    box-shadow:
+      0 2px 0 rgb(46 31 21 / 0.12),
+      0 18px 40px -12px rgb(60 35 15 / 0.45);
+  }
+
+  /* Klebeband-Streifen mit gezackten Enden */
+  .klebeband {
+    position: absolute;
+    height: 28px;
+    background: var(--band, rgb(255 244 214 / 0.72));
+    background-image: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.25) 0 2px, transparent 2px 9px);
+    clip-path: polygon(2% 0, 98% 0, 100% 20%, 97% 40%, 100% 60%, 97% 80%, 100% 100%, 2% 100%, 0 80%, 3% 60%, 0 40%, 3% 20%);
+    box-shadow: 0 1px 2px rgb(60 35 15 / 0.15);
+    pointer-events: none;
+  }
+
+  /* Aufkleber-Schrift: dicker heller Rand um die Buchstaben, wie ein Bügelbild */
+  .aufkleber {
+    -webkit-text-stroke: 0.16em var(--color-wolle);
+    paint-order: stroke fill;
+  }
+}
+
+/* Hero-Titel: Buchstaben hüpfen gestaffelt rein (reines CSS, läuft auch ohne JavaScript) */
 @keyframes buchstabe-rein {
   from {
-    transform: translateY(0.6em) rotate(8deg);
+    transform: translateY(0.6em) rotate(8deg) scale(0.8);
     opacity: 0;
   }
   to {
@@ -79,8 +163,8 @@ body::after {
 
 .buchstabe {
   display: inline-block;
-  animation: buchstabe-rein 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  animation-delay: calc(var(--i) * 40ms + 120ms);
+  animation: buchstabe-rein 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(var(--i) * 45ms + 120ms);
 }
 
 /* Equalizer im Sound-Knopf */

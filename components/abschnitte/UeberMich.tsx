@@ -66,11 +66,11 @@ function KachelHuelle({
   style?: React.ComponentProps<typeof motion.div>["style"];
   children: React.ReactNode;
 }) {
-  const hell = zahl.textFarbe !== "#f5f3ff";
+  const hell = zahl.textFarbe !== "#FFF8EE";
   return (
     <motion.div
       style={{ backgroundColor: zahl.farbe, color: zahl.textFarbe, ...style }}
-      className="ohne-schein relative h-full overflow-hidden rounded-3xl p-5 md:p-6 flach:py-4"
+      className="filz naht stoff-schatten ohne-schein relative h-full overflow-hidden rounded-3xl p-5 [--naht-abstand:8px] md:p-6 flach:py-4"
     >
       <span
         aria-hidden
@@ -106,16 +106,22 @@ export function UeberMich() {
     >
       <div className={gepinnt ? "sticky top-0 flex h-svh flex-col justify-center pt-16" : ""}>
         <div className="mx-auto grid w-full max-w-7xl gap-10 md:grid-cols-2">
-          <div className="min-w-0">
-            <SektionsKopf nummer="01" label="Über mich" titel={ueberMich.titel} titelKlasse="flach:text-5xl" />
+          {/* Text auf einem Blatt Papier, mit Klebeband festgeklebt */}
+          <div className="ohne-schein stoff-schatten relative min-w-0 -rotate-1 rounded-2xl bg-wolle p-6 md:p-8 flach:p-5">
+            <span aria-hidden className="klebeband -top-3 left-10 w-28 -rotate-6" />
+            <span aria-hidden className="klebeband -top-3 right-10 w-24 rotate-6" />
+            <SektionsKopf nummer="01" label="Über mich" titel={ueberMich.titel} titelKlasse="flach:text-4xl" />
             <WortReveal
               text={ueberMich.text}
               fortschritt={gepinnt ? textFortschritt : undefined}
-              className="mt-8 text-2xl leading-snug font-medium lg:text-[1.65rem] flach:mt-5 flach:text-xl"
+              className="mt-6 text-xl leading-snug font-semibold lg:text-2xl flach:mt-4 flach:text-lg"
             />
           </div>
+          {/* Rechts bleibt Platz für die Erdwelt dahinter: Wurm, Knöpfe und Woll-Wurzeln */}
           <div className="hidden items-start justify-end md:flex">
-            <p className="font-mono text-[11px] tracking-[0.2em] text-nebel uppercase">Das bin ich, in Punkten.</p>
+            <p className="ohne-schein stoff-schatten rotate-2 rounded-lg bg-wolle px-4 py-2 font-hand text-2xl">
+              Willkommen unter der Erde.
+            </p>
           </div>
         </div>
 
@@ -129,9 +135,11 @@ export function UeberMich() {
           )}
         </div>
 
-        <p className="mx-auto mt-6 w-full max-w-7xl font-mono text-[11px] leading-relaxed tracking-[0.2em] text-nebel uppercase">
-          {ueberMich.fakten.map((fakt) => `${fakt.label}: ${fakt.wert}`).join("  ·  ")}
-        </p>
+        <div className="mx-auto mt-6 w-full max-w-7xl">
+          <p className="ohne-schein stoff-schatten inline-block rotate-1 rounded-md bg-wolle px-4 py-2 font-hand text-xl leading-snug">
+            {ueberMich.fakten.map((fakt) => `${fakt.label}: ${fakt.wert}`).join("  ·  ")}
+          </p>
+        </div>
       </div>
     </section>
   );

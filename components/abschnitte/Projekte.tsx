@@ -1,9 +1,8 @@
 "use client";
 
-import { motion, useInView, useMotionValueEvent, useScroll, useTransform } from "motion/react";
+import { motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { partikelStore } from "@/components/partikel/zustand";
 import { TiltKarte } from "@/components/ui/TiltKarte";
 import { projekte, type Projekt } from "@/data/projects";
 import { SektionsKopf } from "./SektionsKopf";
@@ -39,13 +38,8 @@ function Cover({ projekt }: { projekt: Projekt }) {
   const hell = istHell(projekt.farbe);
   return (
     <div
-      className="absolute inset-0 flex flex-col justify-between overflow-hidden p-5"
-      style={{
-        backgroundColor: projekt.farbe,
-        color: hell ? "#0b0b14" : "#f5f3ff",
-        backgroundImage: `radial-gradient(circle at 1px 1px, ${hell ? "rgba(11,11,20,0.2)" : "rgba(245,243,255,0.25)"} 1px, transparent 0)`,
-        backgroundSize: "14px 14px",
-      }}
+      className="filz naht ohne-schein absolute inset-0 flex flex-col justify-between overflow-hidden rounded-[inherit] p-6 [--naht-abstand:8px]"
+      style={{ backgroundColor: projekt.farbe, color: hell ? "#2E1F15" : "#FFF8EE" }}
     >
       <span
         aria-hidden
@@ -57,55 +51,79 @@ function Cover({ projekt }: { projekt: Projekt }) {
         className="absolute top-6 right-6 size-10 rotate-12 rounded-xl transition-transform duration-700 group-hover:rotate-45"
         style={{ backgroundColor: hell ? "rgba(11,11,20,0.16)" : "rgba(245,243,255,0.2)" }}
       />
-      <span className="relative font-mono text-[11px] tracking-[0.2em] uppercase">{adresse(projekt)}</span>
-      <span className="relative max-w-[85%] font-display text-4xl leading-[0.9] font-extrabold tracking-tight md:text-5xl flach:text-3xl">
+      <span className="relative font-hand text-2xl leading-none">{adresse(projekt)}</span>
+      <span className="relative max-w-[85%] font-display text-4xl leading-[0.9] font-bold tracking-tight md:text-5xl flach:text-3xl">
         {projekt.titel}
       </span>
     </div>
   );
 }
 
-function ProjektKarte({ projekt, index, gesamt }: { projekt: Projekt; index: number; gesamt: number }) {
+function ProjektKarte({
+  projekt,
+  index,
+  gesamt,
+}: {
+  projekt: Projekt;
+  index: number;
+  gesamt: number;
+}) {
   return (
     <motion.article
-      onViewportEnter={() => (partikelStore.tint = projekt.farbe)}
-      viewport={{ amount: 0.6 }}
-      className="w-full shrink-0 md:w-[min(30rem,70vw)] flach:w-[min(26rem,60vw)]"
+      className="w-full shrink-0 md:w-[min(30rem,70vw)] flach:w-[min(27rem,60vw)]"
     >
-      <TiltKarte farbe={projekt.farbe} className="h-full rounded-3xl border border-papier/10 bg-tinte-2/80 p-3 backdrop-blur-md">
-        <div className="relative aspect-video overflow-hidden rounded-2xl flach:aspect-[21/9]">
-          <Cover projekt={projekt} />
-        </div>
-        <div className="px-3 pt-5 pb-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className="rounded-full px-2.5 py-1 font-mono text-[10px] tracking-[0.15em] uppercase"
-              style={{
-                backgroundColor: `color-mix(in oklab, ${projekt.farbe} 18%, transparent)`,
-                color: `color-mix(in oklab, ${projekt.farbe} 70%, white)`,
-              }}
-            >
-              {projekt.art}
-            </span>
-            {projekt.hinweis && (
-              <span className="font-mono text-[10px] tracking-[0.15em] text-nebel uppercase">{projekt.hinweis}</span>
-            )}
-            <span className="ml-auto font-mono text-[11px] text-nebel tabular-nums">
-              {String(index + 1).padStart(2, "0")} / {String(gesamt).padStart(2, "0")}
-            </span>
+      {/* Karte aus Wellpappe: Cover aus Filz, Text auf Papier, mit Klebeband festgemacht.
+          Alle Karten einer Reihe sind gleich hoch: Das Papier füllt den Rest, die Links stehen immer unten. */}
+      <TiltKarte farbe={projekt.farbe} className="wellpappe stoff-schatten h-full rounded-3xl p-3">
+        <span aria-hidden className="klebeband -top-3 left-1/2 z-10 w-24 -translate-x-1/2 rotate-2" />
+        <div className="flex h-full flex-col">
+          <div className="relative aspect-video shrink-0 overflow-hidden rounded-2xl flach:aspect-[21/9]">
+            <Cover projekt={projekt} />
           </div>
-          <h3 className="mt-3 font-display text-2xl font-bold md:text-3xl">{projekt.titel}</h3>
-          <p className="mt-2 text-papier/75">{projekt.kurz}</p>
-          <ul className="mt-4 flex flex-wrap gap-1.5 flach:hidden" aria-label="Technik">
-            {projekt.technik.map((t) => (
-              <li key={t} className="rounded-full border border-papier/15 px-2.5 py-1 text-xs text-papier/80">
-                {t}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-5 flex flex-wrap gap-5 text-sm font-semibold">
-            {projekt.live && <ProjektLink href={projekt.live}>Live ansehen</ProjektLink>}
-            {projekt.github && <ProjektLink href={projekt.github}>Code auf GitHub</ProjektLink>}
+          <div className="ohne-schein mt-3 flex flex-1 flex-col rounded-2xl bg-wolle px-4 pt-4 pb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className="rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-[0.12em] uppercase"
+                style={{
+                  backgroundColor: `color-mix(in oklab, ${projekt.farbe} 25%, transparent)`,
+                  color: `color-mix(in oklab, ${projekt.farbe} 50%, black)`,
+                }}
+              >
+                {projekt.art}
+              </span>
+              {projekt.hinweis && (
+                <span className="font-mono text-[10px] tracking-[0.15em] text-leise uppercase">{projekt.hinweis}</span>
+              )}
+            </div>
+            <div className="mt-3 flex items-baseline justify-between gap-3">
+              <h3 className="font-display text-2xl font-bold md:text-3xl">{projekt.titel}</h3>
+              <span className="shrink-0 font-mono text-[11px] text-leise tabular-nums">
+                {String(index + 1).padStart(2, "0")} / {String(gesamt).padStart(2, "0")}
+              </span>
+            </div>
+            <p className="mt-2 text-schrift/75">{projekt.kurz}</p>
+            <ul className="mt-4 flex flex-wrap gap-1.5 flach:hidden" aria-label="Technik">
+              {projekt.technik.map((t) => (
+                <li key={t} className="rounded-full border border-schrift/15 px-2.5 py-1 text-xs text-schrift/80">
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-3 pt-5 text-sm font-semibold">
+              {/* Die ganze Seite in einem neuen Tab: besser als ein eingebettetes Fenster */}
+              {projekt.live && (
+                <a
+                  href={projekt.live}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bastel-knopf filz inline-flex items-center gap-2 rounded-full bg-gelb px-4 py-2 font-extrabold text-schrift [--kante:#c9951a]"
+                >
+                  Live ansehen <span aria-hidden>↗</span>
+                  <span className="sr-only">(öffnet in neuem Tab)</span>
+                </a>
+              )}
+              {projekt.github && <ProjektLink href={projekt.github}>Code auf GitHub</ProjektLink>}
+            </div>
           </div>
         </div>
       </TiltKarte>
@@ -119,7 +137,7 @@ function ProjektLink({ href, children }: { href: string; children: React.ReactNo
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="group/link inline-flex items-center gap-1.5 text-papier transition-colors hover:text-limette"
+      className="group/link inline-flex items-center gap-1.5 text-schrift transition-colors hover:text-akzent"
     >
       {children}
       <span aria-hidden className="transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5">
@@ -166,12 +184,6 @@ export function Projekte() {
     if (distanz > 0) setAktiv(Math.round(v * (projekte.length - 1)));
   });
 
-  // Solange der Abschnitt sichtbar ist, nehmen die Partikel die Projektfarbe an
-  const imBild = useInView(huelle, { margin: "-30% 0px -30% 0px" });
-  useEffect(() => {
-    partikelStore.tintAn = imBild;
-  }, [imBild]);
-
   return (
     <section
       id="projekte"
@@ -182,18 +194,21 @@ export function Projekte() {
     >
       <div className="md:sticky md:top-0 md:flex md:h-svh md:flex-col md:justify-center md:overflow-hidden md:pt-16">
         <div className="mx-auto mb-10 flex w-full max-w-7xl items-end justify-between gap-8 px-4 md:mb-8 md:px-8 flach:mb-4">
-          <SektionsKopf
-            nummer="02"
-            label="Projekte"
-            titel="Ausgewählte Arbeiten."
-            titelKlasse="flach:mt-2 flach:text-4xl"
-          />
-          <div className="hidden shrink-0 text-right md:block">
-            <p className="font-display text-5xl font-extrabold tabular-nums flach:text-3xl">
+          <div className="ohne-schein stoff-schatten relative -rotate-1 rounded-2xl bg-wolle px-6 py-5 flach:py-3">
+            <span aria-hidden className="klebeband -top-3 left-8 w-24 -rotate-6" />
+            <SektionsKopf
+              nummer="02"
+              label="Projekte"
+              titel="Ausgewählte Arbeiten."
+              titelKlasse="flach:mt-1 flach:text-4xl"
+            />
+          </div>
+          <div className="ohne-schein stoff-schatten hidden shrink-0 rotate-2 rounded-2xl bg-wolle px-5 py-3 text-right md:block">
+            <p className="font-display text-5xl font-bold tabular-nums flach:text-3xl">
               {String(aktiv + 1).padStart(2, "0")}
-              <span className="text-nebel">/{String(projekte.length).padStart(2, "0")}</span>
+              <span className="text-leise">/{String(projekte.length).padStart(2, "0")}</span>
             </p>
-            <p className="mt-1 max-w-56 text-sm text-nebel flach:hidden">
+            <p className="mt-1 max-w-56 font-hand text-xl leading-tight text-leise flach:hidden">
               Ehrlich gekennzeichnet, wie jedes Projekt entstanden ist.
             </p>
           </div>
@@ -201,7 +216,8 @@ export function Projekte() {
         <motion.div
           ref={spur}
           style={{ x }}
-          className="flex flex-col gap-6 px-4 md:w-max md:flex-row md:px-8"
+          // Handy: Raster mit gleich hohen Zeilen, damit auch untereinander alle Karten gleich gross sind
+          className="grid auto-rows-fr gap-6 px-4 md:flex md:w-max md:flex-row md:px-8"
         >
           {projekte.map((projekt, i) => (
             <ProjektKarte key={projekt.slug} projekt={projekt} index={i} gesamt={projekte.length} />

@@ -16,11 +16,6 @@ export const profil = {
   linkedin: "https://www.linkedin.com/",
   firma: { name: "Curiosolution", url: "https://curiosolution.com" },
 
-  // PLATZHALTER: Foto als public/portrait.jpg ablegen und hier "/portrait.jpg" eintragen.
-  // Ideal: Kopf und Schultern, dunkler ruhiger Hintergrund, Gesicht gut ausgeleuchtet.
-  // Helle Stellen werden zu Punkten, dunkle bleiben leer.
-  portrait: null as string | null,
-
   // Optional: eigener Track als public/track.mp3 ablegen und hier "/track.mp3" eintragen.
   // Ohne Track erzeugt der Browser den Beat live (siehe components/sound/beat.ts).
   track: null as string | null,
@@ -32,29 +27,29 @@ export const heroKarten = [
     kicker: "Was ich mache",
     titel: "Websites, die knallen.",
     text: "Schnell, mobil und mit Liebe zum Detail. Seiten, die man nicht nach drei Sekunden wieder vergisst.",
-    farbe: "#FF2E93",
-    textFarbe: "#0b0b14",
+    farbe: "#EE4F86",
+    textFarbe: "#2E1F15",
   },
   {
     kicker: "Erfahrung",
     titel: "Seit 2023 für echte Kunden.",
     text: "Restaurant, Plattenleger, Beratung, Innenarchitektur: Mit meiner Firma Curiosolution baue ich Websites für Betriebe rund um Zürich.",
-    farbe: "#FF7A1A",
-    textFarbe: "#0b0b14",
+    farbe: "#F48A35",
+    textFarbe: "#2E1F15",
   },
   {
     kicker: "Stack",
     titel: "React. Next.js. TypeScript.",
-    text: "Dazu Tailwind CSS, Motion und Three.js. Die Punkte hinter diesen Karten sind ein eigener Shader.",
-    farbe: "#D4FF3A",
-    textFarbe: "#0b0b14",
+    text: "Dazu Tailwind CSS, Motion und Three.js. Die Bastelwelt hinter diesen Karten ist echtes 3D.",
+    farbe: "#FFC93C",
+    textFarbe: "#2E1F15",
   },
   {
     kicker: "Jetzt",
     titel: "Offen für dein Team.",
     text: "Ich suche eine Stelle als Junior Frontend-Entwickler in Zürich und Umgebung.",
-    farbe: "#3D2BFF",
-    textFarbe: "#f5f3ff",
+    farbe: "#3A86D8",
+    textFarbe: "#FFF8EE",
   },
 ];
 
@@ -72,15 +67,15 @@ export const ueberMich = {
 
 /** Zahlen-Kacheln im «Über mich»: zählen beim Scrollen von «von» auf «wert» hoch */
 export const kennzahlen = [
-  { wert: 2023, von: 1999, label: "selbständig mit meiner Firma Curiosolution", farbe: "#FF2E93", textFarbe: "#0b0b14" },
-  { wert: 4, von: 0, label: "Kunden-Websites live, rund um Zürich", farbe: "#FF7A1A", textFarbe: "#0b0b14" },
-  { wert: 2, von: 0, label: "Ausbildungen: Fullstack-Bootcamp und Next.js", farbe: "#D4FF3A", textFarbe: "#0b0b14" },
+  { wert: 2023, von: 1999, label: "selbständig mit meiner Firma Curiosolution", farbe: "#EE4F86", textFarbe: "#2E1F15" },
+  { wert: 4, von: 0, label: "Kunden-Websites live, rund um Zürich", farbe: "#F48A35", textFarbe: "#2E1F15" },
+  { wert: 2, von: 0, label: "Ausbildungen: Fullstack-Bootcamp und Next.js", farbe: "#FFC93C", textFarbe: "#2E1F15" },
   {
     wert: 4,
     von: 0,
     label: "Sprachen: Deutsch und Serbisch (Muttersprache), Englisch, Französisch",
-    farbe: "#3D2BFF",
-    textFarbe: "#f5f3ff",
+    farbe: "#3A86D8",
+    textFarbe: "#FFF8EE",
   },
 ];
 
@@ -106,20 +101,20 @@ export const spielplatz: SpielplatzEintrag[] = [
     werkzeug: "Blender",
     // PLATZHALTER: Renders in public/spielplatz/ ablegen und hier verlinken
     text: "Modelle, Licht und Szenen. Renderings folgen hier bald.",
-    farbe: "#FF7A1A",
+    farbe: "#F48A35",
   },
   {
     titel: "Kleine Spiele",
     werkzeug: "Godot",
     // PLATZHALTER: Link zum Spiel (z. B. itch.io) unter «link» eintragen
     text: "Prototypen und Game-Jams. Das erste spielbare Projekt kommt hierhin.",
-    farbe: "#3D2BFF",
+    farbe: "#3A86D8",
   },
   {
     titel: "Beats",
     werkzeug: "Musikproduktion",
     text: "Der Beat auf dieser Seite entsteht live in deinem Browser. Probier's aus.",
-    farbe: "#FF2E93",
+    farbe: "#EE4F86",
     aktion: "sound",
   },
 ];

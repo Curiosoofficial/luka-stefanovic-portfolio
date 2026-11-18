@@ -1,32 +1,25 @@
 "use client";
 
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
-import { useRef, type CSSProperties } from "react";
-import { PunkteZaehler } from "@/components/partikel/PunkteZaehler";
+import dynamic from "next/dynamic";
+import { useRef, useState, type CSSProperties } from "react";
+import { Knopf } from "@/components/ui/Knopf";
 import { MagnetKnopf } from "@/components/ui/MagnetKnopf";
 import { useRuhig } from "@/components/ui/medien";
 import { heroKarten, profil } from "@/data/profil";
 
-/** Mischt zwei Hex-Farben, t von 0 bis 1 */
-function mischeFarbe(a: string, b: string, t: number) {
-  const ka = parseInt(a.slice(1), 16);
-  const kb = parseInt(b.slice(1), 16);
-  const kanal = (k: number, shift: number) => (k >> shift) & 255;
-  const mix = (shift: number) => Math.round(kanal(ka, shift) + (kanal(kb, shift) - kanal(ka, shift)) * t);
-  return `rgb(${mix(16)} ${mix(8)} ${mix(0)})`;
-}
+/** Garnfarben für die Buchstaben des Nachnamens, der Reihe nach */
+const GARN = ["#EE4F86", "#F48A35", "#FFC93C", "#5BB54A", "#3A86D8", "#8C5BE0"];
 
-/** Farbverlauf Pink → Orange → Limette über die Buchstaben des Nachnamens */
-function verlauf(i: number, anzahl: number) {
-  const t = anzahl <= 1 ? 0 : i / (anzahl - 1);
-  return t < 0.5 ? mischeFarbe("#FF2E93", "#FF7A1A", t * 2) : mischeFarbe("#FF7A1A", "#D4FF3A", (t - 0.5) * 2);
-}
+/** Knopffarbe pro Filz-Patch, passend zur Patch-Farbe */
+const KNOPF_FARBEN = ["#FFC93C", "#3A86D8", "#EE4F86", "#FFC93C"];
 
 /*
  * Drehbuch des Heros, als Anteil des Scroll-Wegs (0 = ganz oben, 1 = Hero zu Ende):
  *   0.00–0.12  Startbildschirm blendet aus, Vor- und Nachname fahren auseinander
- *   ~0.10–0.28 Partikel: aus dem Namen wird der Warp-Tunnel (über den Marker bei 120svh)
- *   0.30–0.91  Vier Karten kippen nacheinander rein und stapeln sich
+ *   ~0.10–0.28 Knöpfe: aus dem Namen wird der Knopf-Wirbel (über den Marker bei 120svh)
+ *   0.30–0.91  Vier Filz-Patches kippen nacheinander rein und stapeln sich
+ *   bis 1.00   Die Bastelbühne (Hügel, Wolken, Sonne) sinkt weg, der Strick-Himmel blendet aus
  */
 const KARTEN_START = 0.3;
 const KARTEN_ABSTAND = 0.16;
@@ -35,7 +28,15 @@ const SCHRAEG = [-2, 1.5, -1, 0.5];
 
 type Karte = (typeof heroKarten)[number];
 
-function StapelKarte({
+/** Der 3D-Körper der Karten (Filzplatte, Naht, Knopf) läuft nur im Browser */
+const KartenKoerper = dynamic(() => import("@/components/welt/KartenKoerper"), { ssr: false });
+
+/**
+ * Ein Filz-Patch, der beim Scrollen reinkippt und sich auf den Stapel legt.
+ * Der Körper (dicke Filzplatte, Naht, Knopf) ist echtes 3D (siehe KartenKoerper), der Text liegt als HTML darüber.
+ * Bis das 3D-Bild gezeichnet ist, steht eine flache Filzfläche als Platzhalter da.
+ */
+function FilzPatch({
   karte,
   i,
   fortschritt,
@@ -49,7 +50,7 @@ function StapelKarte({
   const n = heroKarten.length;
   const start = KARTEN_START + i * KARTEN_ABSTAND;
   const ende = start + KARTEN_DAUER;
-  // Zeitpunkte, an denen spätere Karten landen: Jedes Mal rutscht diese Karte ein Stück nach hinten
+  // Zeitpunkte, an denen spätere Patches landen: Jedes Mal rutscht dieser ein Stück nach hinten
   const spaeter = Array.from({ length: n - 1 - i }, (_, k) => KARTEN_START + (i + 1 + k) * KARTEN_ABSTAND + KARTEN_DAUER);
 
   const y = useTransform(
@@ -63,64 +64,80 @@ function StapelKarte({
   const abdunkeln = useTransform(
     fortschritt,
     spaeter.length ? [ende, ...spaeter] : [0, 1],
-    spaeter.length ? [0, ...spaeter.map((_, k) => Math.min(0.55, (k + 1) * 0.2))] : [0, 0],
+    spaeter.length ? [0, ...spaeter.map((_, k) => Math.min(0.45, (k + 1) * 0.16))] : [0, 0],
   );
 
-  const hell = karte.textFarbe !== "#f5f3ff";
   const letzte = i === n - 1;
+  const [koerperDa, setKoerperDa] = useState(false);
 
   return (
     <motion.article
-      style={{
-        backgroundColor: karte.farbe,
-        color: karte.textFarbe,
-        backgroundImage: `radial-gradient(circle at 1px 1px, ${hell ? "rgba(11,11,20,0.16)" : "rgba(245,243,255,0.22)"} 1px, transparent 0)`,
-        backgroundSize: "16px 16px",
-        ...(ruhig ? {} : { y, scale: skala, rotateX: kippen, rotate: drehen, transformPerspective: 1400 }),
-      }}
-      className={`ohne-schein pointer-events-auto flex flex-col justify-between gap-6 overflow-hidden rounded-[2rem] p-6 shadow-[0_40px_120px_-20px_rgba(0,0,0,0.75)] md:p-10 ${
-        ruhig ? "relative min-h-[60svh] w-full" : "absolute h-[min(74svh,38rem)] w-[min(92vw,64rem)]"
-      }`}
+      style={ruhig ? undefined : { y, scale: skala, rotateX: kippen, rotate: drehen, transformPerspective: 1400 }}
+      className={`pointer-events-auto ${ruhig ? "relative w-full" : "absolute h-[min(74svh,38rem)] w-[min(92vw,64rem)]"}`}
     >
-      {/* Deko wie bei den Projekt-Covern: Ring und gedrehtes Quadrat */}
-      <span
+      {/* Weicher Schatten der Platte auf die Welt dahinter */}
+      <div
         aria-hidden
-        className="pointer-events-none absolute -right-24 -bottom-32 size-[28rem] rounded-full border-[44px]"
-        style={{ borderColor: hell ? "rgba(11,11,20,0.1)" : "rgba(245,243,255,0.14)" }}
+        className="pointer-events-none absolute inset-x-6 top-8 -bottom-5 rounded-[2.2rem] shadow-[0_34px_60px_-22px_rgb(50_28_12_/_0.6)]"
       />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute top-6 right-6 size-14 rotate-12 rounded-2xl md:top-10 md:right-10 md:size-20"
-        style={{ backgroundColor: hell ? "rgba(11,11,20,0.14)" : "rgba(245,243,255,0.18)" }}
+      <KartenKoerper
+        farbe={karte.farbe}
+        knopf={{ farbe: KNOPF_FARBEN[i], groesse: 64, ecke: "oben-rechts", abstand: [64, 72] }}
+        onBereit={setKoerperDa}
       />
 
-      <p className="relative font-mono text-xs tracking-[0.25em] uppercase">
-        {String(i + 1).padStart(2, "0")} · {karte.kicker}
-      </p>
-      <h2 className="relative max-w-[13ch] font-display text-[clamp(2.75rem,8.5vw,8rem)] leading-[0.86] font-extrabold tracking-[-0.035em]">
-        {karte.titel}
-      </h2>
-      <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <p className="max-w-md text-base leading-relaxed opacity-85 md:text-lg">{karte.text}</p>
-        {letzte && (
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <MagnetKnopf href="#projekte" className="rounded-full bg-limette px-6 py-3.5 font-semibold text-tinte">
-              Projekte ansehen
-            </MagnetKnopf>
-            <MagnetKnopf href="#kontakt" className="rounded-full border border-papier/50 px-6 py-3.5 font-semibold">
-              Kontakt
-            </MagnetKnopf>
-          </div>
+      <div
+        style={{ backgroundColor: koerperDa ? "transparent" : karte.farbe, color: karte.textFarbe }}
+        className={`ohne-schein relative flex flex-col justify-between gap-6 overflow-hidden rounded-[2.2rem] p-8 md:p-12 ${
+          koerperDa ? "" : "filz naht [--naht-abstand:18px]"
+        } ${ruhig ? "min-h-[60svh]" : "h-full"}`}
+      >
+        {/* Platzhalter-Knopf, bis der 3D-Knopf da ist */}
+        {!koerperDa && (
+          <Knopf farbe={KNOPF_FARBEN[i]} groesse={64} className="absolute top-8 right-8 md:top-10 md:right-10" />
         )}
+
+        <p className="relative font-hand text-3xl leading-none">
+          {String(i + 1).padStart(2, "0")} · {karte.kicker}
+        </p>
+        <h2 className="relative max-w-[13ch] font-display text-[clamp(2.75rem,8vw,7.5rem)] leading-[0.9] font-bold tracking-[-0.02em]">
+          {karte.titel}
+        </h2>
+        <div className="relative flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <p className="max-w-md text-base leading-relaxed font-semibold opacity-90 md:text-lg">{karte.text}</p>
+          {letzte && (
+            <div className="flex shrink-0 flex-wrap gap-4">
+              <MagnetKnopf
+                href="#projekte"
+                className="bastel-knopf filz rounded-full bg-gelb px-7 py-3.5 font-bold text-schrift [--kante:#c9951a]"
+              >
+                Projekte ansehen
+              </MagnetKnopf>
+              <MagnetKnopf
+                href="#kontakt"
+                className="bastel-knopf filz rounded-full bg-wolle px-7 py-3.5 font-bold text-schrift [--kante:#cdbb9c]"
+              >
+                Kontakt
+              </MagnetKnopf>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Wird dunkler, sobald weitere Karten darüber landen: so entsteht Tiefe im Stapel */}
+      {/* Wird dunkler, sobald weitere Patches darüber landen: so entsteht Tiefe im Stapel */}
       {!ruhig && (
-        <motion.div aria-hidden className="pointer-events-none absolute inset-0 bg-tinte" style={{ opacity: abdunkeln }} />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -bottom-[18px] rounded-[2.2rem] bg-schrift"
+          style={{ opacity: abdunkeln }}
+        />
       )}
     </motion.article>
   );
 }
+
+/** Die grosse Botschaft im Hero, in zwei Zeilen (die zweite bunt) */
+const SPRUCH = ["Websites", "zum Anfassen."];
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -129,11 +146,9 @@ export function Hero() {
 
   const startDeckkraft = useTransform(scrollYProgress, [0, 0.12], [1, 0]);
   const startSichtbar = useTransform(scrollYProgress, (v) => (v > 0.13 ? "hidden" : "visible"));
-  const vornameX = useTransform(scrollYProgress, [0, 0.2], ["0vw", "-55vw"]);
-  const nachnameX = useTransform(scrollYProgress, [0, 0.2], ["0vw", "55vw"]);
+  const zeile1X = useTransform(scrollYProgress, [0, 0.2], ["0vw", "-55vw"]);
+  const zeile2X = useTransform(scrollYProgress, [0, 0.2], ["0vw", "55vw"]);
 
-  const [vorname, ...rest] = profil.name.split(" ");
-  const nachname = rest.join(" ");
   let index = 0;
 
   const zeile = (wort: string, bunt: boolean, x: MotionValue<string>) => (
@@ -142,9 +157,10 @@ export function Hero() {
         <span
           key={i}
           className="buchstabe"
-          style={{ "--i": index++, color: bunt ? verlauf(i, wort.length) : undefined } as CSSProperties}
+          style={{ "--i": index++, color: bunt ? GARN[i % GARN.length] : undefined } as CSSProperties}
         >
-          {buchstabe}
+          {/* Ein normales Leerzeichen hätte in einem inline-block keine Breite */}
+          {buchstabe === " " ? " " : buchstabe}
         </span>
       ))}
     </motion.span>
@@ -152,7 +168,7 @@ export function Hero() {
 
   return (
     <section id="start" ref={ref} data-partikel="0" className={`relative ${ruhig ? "" : "h-[440svh]"}`}>
-      {/* Unsichtbarer Marker: Wenn er ins Bild scrollt, wird aus dem Partikel-Namen der Warp-Tunnel */}
+      {/* Unsichtbarer Marker: Wenn er ins Bild scrollt, wird aus dem Knopf-Namen der Knopf-Wirbel */}
       <div aria-hidden data-partikel="1" className="pointer-events-none absolute inset-x-0 top-[120svh] h-px" />
 
       <div className={ruhig ? "" : "sticky top-0 h-svh overflow-hidden"}>
@@ -162,47 +178,68 @@ export function Hero() {
           className="relative flex h-svh flex-col justify-end px-4 pt-28 pb-8 md:px-8 md:pb-10"
         >
           <div className="absolute inset-x-4 top-20 flex items-start justify-between md:inset-x-8 md:top-24">
-            <p className="inline-flex items-center gap-2 rounded-full border border-papier/15 bg-tinte/40 px-3 py-1.5 font-mono text-[11px] tracking-[0.2em] uppercase backdrop-blur">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-limette opacity-75 motion-reduce:animate-none" />
-                <span className="relative inline-flex size-2 rounded-full bg-limette" />
+            {/* Etikett mit Loch und Schnur */}
+            <p className="ohne-schein stoff-schatten relative inline-flex -rotate-3 items-center gap-2 rounded-lg bg-wolle py-2 pr-5 pl-8 font-hand text-2xl leading-none">
+              <span aria-hidden className="absolute top-1/2 left-3 size-2.5 -translate-y-1/2 rounded-full bg-grund ring-2 ring-schrift/25" />
+              <span className="relative flex size-2.5">
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-gruen opacity-75 motion-reduce:animate-none" />
+                <span className="relative inline-flex size-2.5 rounded-full bg-gruen" />
               </span>
               {profil.status}
             </p>
-            <div className="hidden text-right md:block">
-              <PunkteZaehler />
-              <p className="mt-1 font-mono text-[11px] tracking-[0.2em] text-nebel/70 uppercase">
-                Maus = Welle · Klick = Knall
-              </p>
+            <div className="ohne-schein hidden rotate-2 rounded-lg bg-wolle/90 px-4 py-2 text-right stoff-schatten md:block">
+              <p className="font-hand text-2xl leading-none">Maus bewegen: die Welt kippt</p>
+              <p className="font-hand text-xl leading-none text-leise">Klicken: die Buchstaben hüpfen</p>
             </div>
           </div>
 
           <div className="mx-auto grid w-full max-w-7xl gap-8 md:grid-cols-12 md:items-end">
             <div className="md:col-span-7">
-              <h1 className="font-display text-[clamp(3rem,8vw,7.5rem)] leading-[0.88] font-extrabold tracking-[-0.03em]">
-                <span className="sr-only">{profil.name}</span>
-                <span aria-hidden>
-                  {zeile(vorname, false, vornameX)}
-                  {zeile(nachname, true, nachnameX)}
+              {/*
+                Der Name hängt schon als Strickbuchstaben in der Welt. Hier steht er darum nur klein auf einem
+                Papieretikett, gross ist die Botschaft. Für Google und Screenreader bleibt der Name Teil der Hauptüberschrift.
+              */}
+              <h1>
+                <span className="ohne-schein stoff-schatten mb-5 inline-block -rotate-2 rounded-lg bg-wolle px-4 py-2 font-display text-lg leading-none font-bold md:text-xl">
+                  {profil.name}
+                  <span className="font-semibold text-leise">
+                    {" "}
+                    · {profil.rolle} in {profil.ort}
+                  </span>
+                </span>
+                <span className="sr-only">: </span>
+                {/* Aufkleber-Schrift: heller dicker Rand um jeden Buchstaben */}
+                <span className="aufkleber block font-display text-[clamp(2.8rem,6.6vw,6.4rem)] leading-[0.95] font-bold tracking-[-0.01em] drop-shadow-[0_4px_0_rgb(46_31_21_/_0.25)]">
+                  <span className="sr-only">{SPRUCH.join(" ")}</span>
+                  <span aria-hidden>
+                    {zeile(SPRUCH[0], false, zeile1X)}
+                    {zeile(SPRUCH[1], true, zeile2X)}
+                  </span>
                 </span>
               </h1>
-              <p className="mt-5 font-mono text-sm tracking-[0.2em] text-nebel uppercase">
-                {profil.rolle} · {profil.stack} · {profil.ort}
+              <p className="filz ohne-schein mt-5 inline-block -rotate-1 rounded-md bg-pink px-4 py-1.5 text-sm font-extrabold tracking-[0.18em] text-wolle uppercase stoff-schatten">
+                {profil.stack} · TypeScript
               </p>
             </div>
 
-            <div className="md:col-span-5 md:pb-3">
-              <p className="max-w-md text-lg leading-relaxed text-papier/85">
+            {/* Papierkärtchen, mit Klebeband festgeklebt */}
+            <div className="ohne-schein stoff-schatten relative rotate-1 rounded-lg bg-wolle p-6 md:col-span-5">
+              <span aria-hidden className="klebeband -top-3 left-1/2 w-28 -translate-x-1/2 -rotate-3" />
+              <p className="max-w-md text-lg leading-relaxed font-semibold">
                 Ich baue schnelle, auffällige Websites. Seit 2023 für echte Kunden rund um Zürich, jetzt suche ich mein
                 nächstes Team.
               </p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <MagnetKnopf href="#projekte" className="rounded-full bg-limette px-6 py-3.5 font-semibold text-tinte">
+              <div className="mt-6 flex flex-wrap gap-4">
+                <MagnetKnopf
+                  href="#projekte"
+                  className="bastel-knopf filz gap-2 rounded-full bg-gelb px-6 py-3 font-bold text-schrift [--kante:#c9951a]"
+                >
+                  <Knopf farbe="#EE4F86" groesse={22} />
                   Projekte ansehen
                 </MagnetKnopf>
                 <MagnetKnopf
                   href="#kontakt"
-                  className="rounded-full border border-papier/30 bg-tinte/30 px-6 py-3.5 font-semibold backdrop-blur transition-colors hover:border-papier"
+                  className="bastel-knopf filz rounded-full bg-grund px-6 py-3 font-bold text-schrift [--kante:#cdbb9c]"
                 >
                   Kontakt
                 </MagnetKnopf>
@@ -210,27 +247,22 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="mx-auto mt-10 flex w-full max-w-7xl items-center justify-between font-mono text-[11px] tracking-[0.2em] text-nebel uppercase">
-            <span>Zürich, Schweiz</span>
-            <span className="flex items-center gap-3">
-              Scrollen für den Warp
-              <span className="relative block h-px w-12 overflow-hidden bg-nebel/30">
-                <span className="absolute inset-y-0 left-0 w-1/2 animate-pulse bg-limette" />
-              </span>
-            </span>
+          <div className="mx-auto mt-8 flex w-full max-w-7xl items-center justify-between font-hand text-2xl text-wolle drop-shadow-[0_1px_2px_rgb(46_31_21_/_0.6)]">
+            <span className="hidden sm:inline">Handgestrickt mit Three.js</span>
+            <span className="ml-auto">Runterscrollen ↓</span>
           </div>
         </motion.div>
 
-        {/* Kartenstapel */}
+        {/* Stapel aus Filz-Patches */}
         <div
           className={
             ruhig
-              ? "flex flex-col gap-6 px-4 pb-16 md:px-8"
+              ? "flex flex-col gap-12 px-4 pb-16 md:px-8"
               : "pointer-events-none absolute inset-0 flex items-center justify-center"
           }
         >
           {heroKarten.map((karte, i) => (
-            <StapelKarte key={karte.titel} karte={karte} i={i} fortschritt={scrollYProgress} ruhig={ruhig} />
+            <FilzPatch key={karte.titel} karte={karte} i={i} fortschritt={scrollYProgress} ruhig={ruhig} />
           ))}
         </div>
       </div>

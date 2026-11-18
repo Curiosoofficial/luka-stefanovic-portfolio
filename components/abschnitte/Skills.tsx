@@ -15,9 +15,9 @@ const gruppen = [
 type Band = { eintraege: string[]; farbe: string; text: string; drehung: number; richtung: 1 | -1 };
 
 const baender: Band[] = [
-  { eintraege: skills.kern, farbe: "#D4FF3A", text: "#0b0b14", drehung: -4, richtung: 1 },
-  { eintraege: skills.werkzeuge, farbe: "#FF2E93", text: "#0b0b14", drehung: 3, richtung: -1 },
-  { eintraege: skills.ausserdem, farbe: "#3D2BFF", text: "#f5f3ff", drehung: -1.5, richtung: 1 },
+  { eintraege: skills.kern, farbe: "#FFC93C", text: "#2E1F15", drehung: -4, richtung: 1 },
+  { eintraege: skills.werkzeuge, farbe: "#EE4F86", text: "#2E1F15", drehung: 3, richtung: -1 },
+  { eintraege: skills.ausserdem, farbe: "#3A86D8", text: "#FFF8EE", drehung: -1.5, richtung: 1 },
 ];
 
 /** Ein schräges Absperrband. Beim Scrollen schiebt es sich seitlich, jedes zweite in die Gegenrichtung. */
@@ -28,12 +28,12 @@ function Absperrband({ band, fortschritt, ruhig }: { band: Band; fortschritt: Mo
 
   return (
     <div
-      className="ohne-schein relative -mx-[5vw] py-3 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] md:py-5"
+      className="filz ohne-schein stoff-schatten relative -mx-[5vw] py-4 outline-[3px] -outline-offset-[10px] outline-white/70 outline-dashed md:py-6"
       style={{ backgroundColor: band.farbe, color: band.text, rotate: `${band.drehung}deg` }}
     >
       <motion.ul
         style={ruhig ? undefined : { x }}
-        className="flex w-max items-center font-display text-4xl font-extrabold tracking-tight whitespace-nowrap md:text-7xl"
+        className="flex w-max items-center font-display text-4xl font-bold tracking-tight whitespace-nowrap md:text-7xl"
       >
         {liste.map((eintrag, i) => (
           <li key={i} className="flex items-center">
@@ -55,13 +55,14 @@ export function Skills() {
   return (
     <section id="skills" data-partikel="4" className="relative py-28 md:py-40">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 md:grid-cols-2 md:px-8">
-        <div className="min-w-0">
+        <div className="ohne-schein stoff-schatten relative min-w-0 rotate-1 rounded-2xl bg-wolle p-6 md:p-8">
+          <span aria-hidden className="klebeband -top-3 right-12 w-28 rotate-3" />
           <SektionsKopf nummer="03" label="Skills" titel="Mein Werkzeugkasten." />
-          <div className="mt-12 grid gap-8 sm:grid-cols-3">
+          <div className="mt-8 grid gap-8 sm:grid-cols-3">
             {gruppen.map((gruppe) => (
               <div key={gruppe.titel}>
-                <h3 className="font-mono text-[11px] tracking-[0.2em] text-limette uppercase">{gruppe.titel}</h3>
-                <ul className="mt-3 space-y-1.5 text-papier/90">
+                <h3 className="font-hand text-2xl leading-none text-akzent">{gruppe.titel}</h3>
+                <ul className="mt-3 space-y-1.5 font-semibold text-schrift/90">
                   {gruppe.eintraege.map((eintrag) => (
                     <li key={eintrag}>{eintrag}</li>
                   ))}

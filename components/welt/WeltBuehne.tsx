@@ -4,14 +4,14 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
 // Three.js ist gross. Mit ssr: false landet es nicht im Server-HTML und blockiert den Text nicht.
-const PartikelSzene = dynamic(() => import("./PartikelSzene"), { ssr: false });
+const WeltSzene = dynamic(() => import("./WeltSzene"), { ssr: false });
 
 /**
  * Fixe Bühne hinter der ganzen Seite.
- * Die 3D-Szene wird erst geladen, wenn der Browser nach dem ersten Bild Luft hat:
- * So ist der Text sofort lesbar und die Partikel kommen danach.
+ * Die 3D-Welt wird erst geladen, wenn der Browser nach dem ersten Bild Luft hat:
+ * So ist der Text sofort lesbar und die Welt baut sich danach auf.
  */
-export function PartikelBuehne() {
+export function WeltBuehne() {
   const [laden, setLaden] = useState(false);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export function PartikelBuehne() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-      {laden && <PartikelSzene />}
+      {laden && <WeltSzene />}
     </div>
   );
 }

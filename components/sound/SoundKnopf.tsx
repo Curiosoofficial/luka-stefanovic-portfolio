@@ -17,7 +17,7 @@ export function SoundKnopf({ className = "" }: { className?: string }) {
       aria-pressed={an}
       onClick={() => beat.umschalten()}
       title={an ? "Beat stoppen" : "Live-Beat starten"}
-      className={`inline-flex items-center gap-2 rounded-full border border-papier/20 bg-tinte/40 px-3.5 py-2 font-mono text-xs tracking-widest uppercase backdrop-blur transition-colors hover:border-limette hover:text-limette aria-pressed:border-limette aria-pressed:text-limette ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border border-schrift/20 bg-grund/40 px-3.5 py-2 font-mono text-xs tracking-widest uppercase backdrop-blur transition-colors hover:border-akzent hover:text-akzent aria-pressed:border-akzent aria-pressed:text-akzent ${className}`}
     >
       <span aria-hidden className="flex h-3 items-end gap-[2px]">
         {[0, 1, 2, 3].map((i) => (
