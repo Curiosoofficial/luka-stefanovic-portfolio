@@ -175,7 +175,7 @@ export function Projekte() {
   return (
     <section
       id="projekte"
-      data-partikel="2"
+      data-partikel="3"
       ref={huelle}
       className="relative py-28 md:py-0"
       style={distanz > 0 ? { height: `calc(100svh + ${distanz}px)` } : undefined}

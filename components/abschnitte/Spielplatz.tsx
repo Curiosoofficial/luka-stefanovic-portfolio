@@ -55,7 +55,7 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
 
 export function Spielplatz() {
   return (
-    <section id="spielplatz" data-partikel="4" className="relative px-4 py-28 md:px-8 md:py-40">
+    <section id="spielplatz" data-partikel="5" className="relative px-4 py-28 md:px-8 md:py-40">
       <div className="mx-auto max-w-7xl">
         <SektionsKopf nummer="04" label="Spielplatz" titel="Wenn ich nicht code …" />
         <p className="mt-6 max-w-xl text-lg text-papier/80">

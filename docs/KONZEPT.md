@@ -34,12 +34,12 @@ Die Farbe eines Punkts hängt von seiner Position in der Form ab. So entstehen F
 | # | Abschnitt | Partikel formen … | Was sonst passiert |
 | --- | --- | --- | --- |
 | 0 | Intro | fliegen von überall zusammen | Zähler im Hero zählt auf «24’000 Punkte» hoch. Blockiert nichts: der Text ist sofort lesbar |
-| 1 | Hero | **«LUKA»** | Maus stösst Partikel weg. «Webentwickler · React / Next.js · Zürich». Magnetische Buttons «Projekte ansehen» und «Kontakt» |
-| 2 | Über mich | **Porträt** (vorerst Platzhalter-Silhouette) | Text färbt sich beim Scrollen Wort für Wort ein |
+| 1 | Hero (bleibt 4,4 Bildschirmhöhen stehen) | **«LUKA»** über die ganze Breite, dann **Warp-Tunnel** | Maus = Welle, Klick = Knall mit Schockwellen-Ring. Beim Scrollen fahren Vor- und Nachname auseinander, die Punkte reissen zum Tunnel auf (Lichtstreifen, je schneller gescrollt, desto schneller der Flug). Dann kippen vier knallige Karten rein und stapeln sich: «Websites, die knallen.» · «Seit 2023 für echte Kunden.» · «React. Next.js. TypeScript.» · «Offen für dein Team.» |
+| 2 | Über mich (bleibt stehen) | **Porträt** (vorerst Platzhalter-Silhouette) | Text färbt sich beim Scrollen Wort für Wort ein, dann springen vier knallige Zahlen-Kacheln rein und zählen hoch (2023 · 4 Kunden-Websites · 2 Ausbildungen · 4 Sprachen) |
 | 3 | Projekte | **fliessende Welle** in der Farbe des aktiven Projekts | Abschnitt bleibt stehen, Projekte fahren horizontal vorbei. Karten mit 3D-Tilt und Spotlight. Ehrliche Labels |
-| 4 | Skills | **React-Atom** | Zwei gegenläufige Laufbänder mit Technologien |
+| 4 | Skills | **React-Atom** | Drei schräge, knallige Absperrbänder mit den Skills, die sich beim Scrollen gegenläufig über den Bildschirm schieben |
 | 5 | Spielplatz | **Galaxie** | «Wenn ich nicht code»: Blender, Godot, Musik (vorerst Platzhalter) |
-| 6 | Kontakt | **@** | Riesiges «Schreib mir», magnetischer Button, E-Mail (vorerst Platzhalter) |
+| 6 | Kontakt (bleibt stehen) | **@** | Aus dem @ heraus flutet ein pinker Kreis den Bildschirm, «Schreib mir.» fährt von beiden Seiten rein. Mail-Button, «E-Mail kopieren», Links (E-Mail vorerst Platzhalter) |
 
 ## Sound-Modus
 

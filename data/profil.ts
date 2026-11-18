@@ -26,22 +26,63 @@ export const profil = {
   track: null as string | null,
 };
 
+/** Die vier Karten, die sich im Hero beim Scrollen übereinanderstapeln */
+export const heroKarten = [
+  {
+    kicker: "Was ich mache",
+    titel: "Websites, die knallen.",
+    text: "Schnell, mobil und mit Liebe zum Detail. Seiten, die man nicht nach drei Sekunden wieder vergisst.",
+    farbe: "#FF2E93",
+    textFarbe: "#0b0b14",
+  },
+  {
+    kicker: "Erfahrung",
+    titel: "Seit 2023 für echte Kunden.",
+    text: "Restaurant, Plattenleger, Beratung, Innenarchitektur: Mit meiner Firma Curiosolution baue ich Websites für Betriebe rund um Zürich.",
+    farbe: "#FF7A1A",
+    textFarbe: "#0b0b14",
+  },
+  {
+    kicker: "Stack",
+    titel: "React. Next.js. TypeScript.",
+    text: "Dazu Tailwind CSS, Motion und Three.js. Die Punkte hinter diesen Karten sind ein eigener Shader.",
+    farbe: "#D4FF3A",
+    textFarbe: "#0b0b14",
+  },
+  {
+    kicker: "Jetzt",
+    titel: "Offen für dein Team.",
+    text: "Ich suche eine Stelle als Junior Frontend-Entwickler in Zürich und Umgebung.",
+    farbe: "#3D2BFF",
+    textFarbe: "#f5f3ff",
+  },
+];
+
 export const ueberMich = {
   titel: "Vom Bootcamp zu echten Kunden.",
   text:
     "Ich baue Websites, die auffallen und funktionieren. Seit 2023 mache ich das mit meiner Firma Curiosolution für Betriebe rund um Zürich, vom Restaurant in Dübendorf bis zum Plattenleger. Das Handwerk habe ich im Fullstack-Bootcamp der Developer Akademie gelernt, danach habe ich mich auf React und Next.js spezialisiert. Jetzt suche ich ein Team, in dem ich als Frontend-Entwickler richtig wachsen kann.",
+  /** Kurze Zeile unter den Zahlen-Kacheln */
   fakten: [
     { label: "Standort", wert: "Zürich" },
-    { label: "Selbständig seit", wert: "2023 · Curiosolution" },
-    { label: "Ausbildung", wert: "Fullstack-Bootcamp, Developer Akademie (2022–2023)" },
-    { label: "Weiterbildung", wert: "Next.js, JS Mastery (2023)" },
-    {
-      label: "Sprachen",
-      wert: "Deutsch, Serbisch (Muttersprache), Englisch (fliessend), Französisch (Schulkenntnisse)",
-    },
     { label: "Bürgerrecht", wert: "Schweiz / Serbien" },
+    { label: "Ausbildung", wert: "Developer Akademie 2022–2023, JS Mastery 2023" },
   ],
 };
+
+/** Zahlen-Kacheln im «Über mich»: zählen beim Scrollen von «von» auf «wert» hoch */
+export const kennzahlen = [
+  { wert: 2023, von: 1999, label: "selbständig mit meiner Firma Curiosolution", farbe: "#FF2E93", textFarbe: "#0b0b14" },
+  { wert: 4, von: 0, label: "Kunden-Websites live, rund um Zürich", farbe: "#FF7A1A", textFarbe: "#0b0b14" },
+  { wert: 2, von: 0, label: "Ausbildungen: Fullstack-Bootcamp und Next.js", farbe: "#D4FF3A", textFarbe: "#0b0b14" },
+  {
+    wert: 4,
+    von: 0,
+    label: "Sprachen: Deutsch und Serbisch (Muttersprache), Englisch, Französisch",
+    farbe: "#3D2BFF",
+    textFarbe: "#f5f3ff",
+  },
+];
 
 export const skills = {
   kern: ["React", "Next.js", "TypeScript", "JavaScript", "Tailwind CSS", "HTML", "CSS"],

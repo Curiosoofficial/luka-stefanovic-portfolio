@@ -10,6 +10,8 @@ export const partikelStore = {
   /** Farbe, die die Partikel annehmen, solange ein Projekt sichtbar ist */
   tint: "#ffffff",
   tintAn: false,
+  /** Letzter Klick: Ort (-1 bis 1) und Zeitpunkt (performance.now). Startwert liegt weit in der Vergangenheit. */
+  knall: { x: 0, y: 0, zeit: -100000 },
 };
 
 /* Lade-Status für die Anzeige im Hero («24'000 Punkte»). Hier lohnt sich React-State. */

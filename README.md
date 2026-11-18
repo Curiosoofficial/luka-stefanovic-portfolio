@@ -3,7 +3,7 @@
 Portfolio von Luka Stefanovic, Webentwickler (React / Next.js) in Zürich.
 
 24'000 leuchtende Partikel begleiten den Besucher durch die Seite und formen sich in jedem Abschnitt neu:
-**LUKA → Porträt → Welle → React-Atom → Galaxie → @**. Dazu kommt ein Sound-Modus, bei dem ein live im Browser erzeugter Beat die Partikel pulsieren lässt.
+**LUKA → Warp-Tunnel → Porträt → Welle → React-Atom → Galaxie → @**. Im Hero fliegt man beim Scrollen durch den Tunnel, während sich vier knallige Karten stapeln. Ein Klick löst eine Schockwelle aus. Dazu kommt ein Sound-Modus, bei dem ein live im Browser erzeugter Beat die Partikel pulsieren lässt.
 
 <!-- Screenshot folgt nach dem ersten Deployment: ![Screenshot](https://DEINE-DOMAIN/opengraph-image) -->
 
@@ -61,7 +61,7 @@ components/
     PartikelBuehne.tsx    Lädt die 3D-Szene erst, wenn der Text schon steht
   sound/beat.ts           Beat-Maschine mit der Web Audio API
   abschnitte/             Hero, Über mich, Projekte, Skills, Spielplatz, Kontakt
-  ui/                     Magnet-Button, Tilt-Karte, Wort-Reveal, Laufband, Cursor
+  ui/                     Magnet-Button, Tilt-Karte, Wort-Reveal, Cursor, Media-Query-Hooks
 data/                     Alle Inhalte
 docs/KONZEPT.md           Das Konzept hinter der Seite
 ```
@@ -77,7 +77,7 @@ docs/KONZEPT.md           Das Konzept hinter der Seite
 
 - Der Text wird serverseitig gerendert und ist sofort lesbar. Three.js lädt erst danach (`next/dynamic` mit `ssr: false` und `requestIdleCallback`).
 - Handys bekommen weniger Partikel und ein ruhigeres Layout, Projekte stehen dort untereinander.
-- Mit «Bewegung reduzieren» im System: kein Smooth Scroll, kein eigener Cursor, keine Laufbänder, und die Partikel springen ohne Animation zwischen den Formen.
+- Mit «Bewegung reduzieren» im System: kein Smooth Scroll, kein eigener Cursor, Hero, Über mich und Kontakt bleiben nicht stehen (Inhalte stehen einfach untereinander), Bänder und Karten bewegen sich nicht, und die Partikel springen ohne Animation zwischen den Formen.
 - Skip-Link, sichtbare Fokus-Ringe, `aria-pressed` beim Sound-Knopf.
 
 ## Deployment

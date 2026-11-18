@@ -11,7 +11,8 @@ import { partikelStore, setzePartikelStatus } from "./zustand";
 
 const FOV = 35;
 const KAMERA_Z = 14;
-const LETZTE_FORM = 5;
+// Formen: 0 Name, 1 Tunnel, 2 Porträt, 3 Welle, 4 Atom, 5 Galaxie, 6 @
+const LETZTE_FORM = 6;
 
 /** Hex-Farbe direkt als RGB von 0 bis 1, ohne Farbraum-Umrechnung: so leuchtet #FF2E93 genau als #FF2E93. */
 function rgb(hex: string, ziel = new THREE.Vector3()) {
@@ -36,23 +37,27 @@ type Platz = { x: number; y: number; s: number; dreh: number; alpha: number };
 function layout(form: number, b: number, h: number): Platz {
   const schmal = b / h < 1;
   switch (form) {
-    case 0: // Name
+    case 0: // Name: so gross wie möglich, das ist der erste Eindruck
       return schmal
-        ? { x: 0, y: h * 0.19, s: (b * 0.86) / 10, dreh: 0.12, alpha: 1 }
-        : { x: 0, y: h * 0.12, s: Math.min(1.25, (b * 0.78) / 10), dreh: 0.12, alpha: 1 };
-    case 1: // Porträt
+        ? { x: 0, y: h * 0.19, s: (b * 0.9) / 10, dreh: 0.12, alpha: 1 }
+        : { x: 0, y: h * 0.13, s: Math.min(1.45, (b * 0.88) / 10), dreh: 0.12, alpha: 1 };
+    case 1: // Tunnel (Warp): mittig, die Kamera fliegt hindurch
+      return schmal
+        ? { x: 0, y: 0, s: 0.75, dreh: 0, alpha: 0.85 }
+        : { x: 0, y: 0, s: 1, dreh: 0, alpha: 1 };
+    case 2: // Porträt
       return schmal
         ? { x: 0, y: h * 0.1, s: Math.min(0.75, (b * 0.8) / 4.6), dreh: 0.3, alpha: 0.45 }
-        : { x: b * 0.25, y: -h * 0.02, s: Math.min(1, (h * 0.78) / 6.4), dreh: 0.35, alpha: 1 };
-    case 2: // Welle
+        : { x: b * 0.25, y: h * 0.08, s: Math.min(1, (h * 0.6) / 6.4), dreh: 0.35, alpha: 1 };
+    case 3: // Welle
       return schmal
         ? { x: 0, y: -h * 0.25, s: 0.55, dreh: 0, alpha: 0.5 }
         : { x: 0, y: -h * 0.22, s: 1, dreh: 0, alpha: 0.85 };
-    case 3: // Atom
+    case 4: // Atom
       return schmal
         ? { x: 0, y: h * 0.12, s: (b * 0.85) / 7, dreh: 0.5, alpha: 0.45 }
         : { x: b * 0.27, y: 0, s: Math.min(1, (b * 0.36) / 7), dreh: 0.5, alpha: 1 };
-    case 4: // Galaxie
+    case 5: // Galaxie
       return schmal
         ? { x: 0, y: 0, s: (b * 0.98) / 9.4, dreh: 0, alpha: 0.4 }
         : { x: 0, y: h * 0.04, s: Math.min(1.2, (b * 0.72) / 9.4), dreh: 0, alpha: 0.65 };
@@ -67,16 +72,19 @@ const mische = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /**
  * Welche Form gerade dran ist, als Kommazahl: 1.4 heisst «40 % auf dem Weg von Form 1 zu Form 2».
- * Jede Sektion mit data-partikel startet ihren Übergang, wenn ihre Oberkante ins untere Bilddrittel kommt.
+ * Jedes Element mit data-partikel (Abschnitt oder unsichtbarer Marker) startet seinen Übergang,
+ * wenn seine Oberkante ins untere Bilddrittel kommt.
  */
 function formAusScroll(sektionen: HTMLElement[]) {
   const vh = window.innerHeight;
-  let f = 0;
+  const nummer = (el: HTMLElement) => Number(el.dataset.partikel);
+  let f = sektionen.length ? nummer(sektionen[0]) : 0;
   for (let i = 1; i < sektionen.length; i++) {
     const oben = sektionen[i].getBoundingClientRect().top;
     const p = Math.min(1, Math.max(0, (vh * 0.85 - oben) / (vh * 0.6)));
     if (p <= 0) break;
-    f = i - 1 + p;
+    const von = nummer(sektionen[i - 1]);
+    f = von + (nummer(sektionen[i]) - von) * p;
   }
   return Math.min(f, LETZTE_FORM);
 }
@@ -113,6 +121,10 @@ function Wolke({ formen }: { formen: FormDaten }) {
           uDrehung: { value: 0 },
           uMaus: { value: new THREE.Vector2(999, 999) },
           uMausKraft: { value: 0 },
+          uKnallOrt: { value: new THREE.Vector2() },
+          uKnallZeit: { value: 100 },
+          uFlug: { value: 0 },
+          uWarpTempo: { value: 0 },
           uPuls: { value: 0 },
           uIntro: { value: 0 },
           uGroesse: { value: 0.055 },
@@ -146,6 +158,9 @@ function Wolke({ formen }: { formen: FormDaten }) {
     my: 0,
     tintStaerke: 0,
     tintZiel: new THREE.Vector3(),
+    flug: 0,
+    tempo: 3,
+    letztesY: 0,
   });
 
   useEffect(() => {
@@ -168,6 +183,14 @@ function Wolke({ formen }: { formen: FormDaten }) {
       partikelStore.maus.aktiv = true;
     };
     const verlassen = () => (partikelStore.maus.aktiv = false);
+    // Klick (oder Tippen) irgendwo, ausser auf Links und Buttons: Knall an dieser Stelle
+    const klicken = (e: PointerEvent) => {
+      if (e.target instanceof Element && e.target.closest("a, button")) return;
+      partikelStore.knall.x = (e.clientX / window.innerWidth) * 2 - 1;
+      partikelStore.knall.y = -((e.clientY / window.innerHeight) * 2 - 1);
+      partikelStore.knall.zeit = performance.now();
+    };
+    window.addEventListener("pointerdown", klicken);
     window.addEventListener("pointermove", bewegen, { passive: true });
     document.documentElement.addEventListener("pointerleave", verlassen);
     window.addEventListener("blur", verlassen);
@@ -175,6 +198,7 @@ function Wolke({ formen }: { formen: FormDaten }) {
 
     return () => {
       mq.removeEventListener("change", mqAenderung);
+      window.removeEventListener("pointerdown", klicken);
       window.removeEventListener("pointermove", bewegen);
       document.documentElement.removeEventListener("pointerleave", verlassen);
       window.removeEventListener("blur", verlassen);
@@ -225,6 +249,20 @@ function Wolke({ formen }: { formen: FormDaten }) {
     s.my += ((maus.y * h) / 2 - s.my) * Math.min(1, dt * 12);
     u.uMaus.value.set(s.mx, s.my);
     u.uMausKraft.value = s.mausKraft;
+
+    // Klick-Knall: Sekunden seit dem letzten Klick und Ort in Welt-Koordinaten
+    const knall = partikelStore.knall;
+    u.uKnallZeit.value = still ? 100 : (performance.now() - knall.zeit) / 1000;
+    u.uKnallOrt.value.set((knall.x * b) / 2, (knall.y * h) / 2);
+
+    // Warp-Flug: Grundtempo plus Scroll-Geschwindigkeit. Wer schneller scrollt, fliegt schneller.
+    const y = window.scrollY;
+    const scrollTempo = Math.abs(y - s.letztesY) / Math.max(dt, 0.001);
+    s.letztesY = y;
+    s.tempo += (Math.min(40, 3 + scrollTempo * 0.015) - s.tempo) * Math.min(1, dt * 3);
+    if (!still) s.flug += dt * s.tempo;
+    u.uFlug.value = s.flug;
+    u.uWarpTempo.value = still ? 0 : Math.min(1, Math.max(0, (s.tempo - 3) / 25));
 
     // Sound
     u.uPuls.value = still ? 0 : beat.puls();

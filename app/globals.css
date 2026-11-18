@@ -48,6 +48,12 @@ main :where(p, dd, li, h2, h3) {
   text-shadow: 0 0 24px rgb(11 11 20 / 0.85);
 }
 
+/* Auf knalligen Farbflächen kein dunkler Schein */
+.ohne-schein,
+.ohne-schein * {
+  text-shadow: none;
+}
+
 /* Feine Körnung über allem, wie bei gedrucktem Papier */
 body::after {
   content: "";
@@ -75,25 +81,6 @@ body::after {
   display: inline-block;
   animation: buchstabe-rein 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   animation-delay: calc(var(--i) * 40ms + 120ms);
-}
-
-/* Laufband: Inhalt ist doppelt vorhanden, -50 % verschiebt also genau eine Kopie */
-@keyframes laufband {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.laufband-spur {
-  animation: laufband var(--dauer, 40s) linear infinite;
-}
-
-.laufband:hover .laufband-spur {
-  animation-play-state: paused;
-}
-
-.laufband-rueckwaerts {
-  animation-direction: reverse;
 }
 
 /* Equalizer im Sound-Knopf */
@@ -133,7 +120,6 @@ html.eigener-cursor * {
 
 @media (prefers-reduced-motion: reduce) {
   .buchstabe,
-  .laufband-spur,
   [aria-pressed="true"] .eq-balken {
     animation: none;
   }
