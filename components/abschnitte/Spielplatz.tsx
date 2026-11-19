@@ -7,6 +7,7 @@ import { useSoundAn } from "@/components/sound/SoundKnopf";
 import { Einblenden } from "@/components/ui/Einblenden";
 import { Knopf } from "@/components/ui/Knopf";
 import { TiltKarte } from "@/components/ui/TiltKarte";
+import { THEMA } from "@/components/welt/thema";
 import { spielplatz, type SpielplatzEintrag } from "@/data/profil";
 import { SektionsKopf } from "./SektionsKopf";
 
@@ -28,6 +29,14 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
   const hell = istHell(eintrag.farbe);
   const knopfFarbe = hell ? "#3A86D8" : "#FFC93C";
   const [koerperDa, setKoerperDa] = useState(false);
+  const code = THEMA === "code";
+  // Code-Welt: dunkles Glas mit einem Lichtschein in der Farbe der Kachel
+  const flaeche = code
+    ? {
+        background: `radial-gradient(120% 110% at 0% 0%, color-mix(in oklab, ${eintrag.farbe} 40%, transparent) 0%, transparent 60%), linear-gradient(170deg, #121a33 0%, #0a0e1d 100%)`,
+        color: "#e9edff",
+      }
+    : { backgroundColor: koerperDa ? "transparent" : eintrag.farbe, color: hell ? "#2E1F15" : "#FFF8EE" };
 
   return (
     <TiltKarte farbe={eintrag.farbe} className="h-full rounded-3xl" effekteVorne>
@@ -36,23 +45,33 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
         aria-hidden
         className="pointer-events-none absolute inset-x-4 top-6 -bottom-4 rounded-3xl shadow-[0_26px_44px_-18px_rgb(20_10_40_/_0.65)]"
       />
-      <KartenKoerper
-        farbe={eintrag.farbe}
-        radius={24}
-        polster={11}
-        dicke={12}
-        naht={15}
-        knopf={{ farbe: knopfFarbe, groesse: 48, ecke: "oben-links", abstand: 52 }}
-        onBereit={setKoerperDa}
-      />
+      {!code && (
+        <KartenKoerper
+          farbe={eintrag.farbe}
+          radius={24}
+          polster={11}
+          dicke={12}
+          naht={15}
+          knopf={{ farbe: knopfFarbe, groesse: 48, ecke: "oben-links", abstand: 52 }}
+          onBereit={setKoerperDa}
+        />
+      )}
       <div
-        className={`ohne-schein relative flex h-full flex-col rounded-3xl p-7 ${koerperDa ? "" : "filz naht [--naht-abstand:12px]"}`}
-        style={{ backgroundColor: koerperDa ? "transparent" : eintrag.farbe, color: hell ? "#2E1F15" : "#FFF8EE" }}
+        className={`ohne-schein relative flex h-full flex-col rounded-3xl p-7 ${
+          code ? "border border-white/10" : koerperDa ? "" : "filz naht [--naht-abstand:12px]"
+        }`}
+        style={flaeche}
       >
         <div className="flex items-center justify-between">
-          {/* Platz für den 3D-Knopf; bis er da ist, steht ein flacher Knopf dort */}
-          {koerperDa ? <span aria-hidden className="size-12" /> : <Knopf farbe={knopfFarbe} groesse={48} />}
-          <span className="font-hand text-2xl leading-none">{eintrag.werkzeug}</span>
+          {/* Platz für den 3D-Knopf; bis er da ist, steht ein flacher Knopf dort (Code-Welt: leuchtender Knoten) */}
+          {koerperDa && !code ? (
+            <span aria-hidden className="size-12" />
+          ) : (
+            <Knopf farbe={code ? eintrag.farbe : knopfFarbe} groesse={48} />
+          )}
+          <span className="font-hand text-2xl leading-none" style={code ? { color: eintrag.farbe } : undefined}>
+            {eintrag.werkzeug}
+          </span>
         </div>
         <h3 className="mt-8 font-display text-3xl font-bold">{eintrag.titel}</h3>
         <p className="mt-2 flex-1 font-semibold opacity-90">{eintrag.text}</p>
@@ -62,7 +81,7 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
               type="button"
               aria-pressed={soundAn}
               onClick={() => beat.umschalten()}
-              className="bastel-knopf filz rounded-full bg-gelb px-5 py-2.5 text-sm font-extrabold text-schrift [--kante:#c9951a]"
+              className="bastel-knopf filz rounded-full bg-gelb px-5 py-2.5 text-sm font-extrabold text-tinte [--kante:#c9951a]"
             >
               {soundAn ? "Beat stoppen" : "Beat starten"}
             </button>

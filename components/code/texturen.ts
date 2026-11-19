@@ -11,11 +11,12 @@ export type Schriften = { display: string; sans: string; mono: string };
 /** Liest die Schriften der Seite (next/font legt sie als CSS-Variablen auf <html>) */
 export function schriftenLesen(): Schriften {
   const stil = getComputedStyle(document.documentElement);
-  const lesen = (name: string) => stil.getPropertyValue(name).trim() || "system-ui, sans-serif";
+  const lesen = (name: string, ersatz: string) => stil.getPropertyValue(name).trim() || ersatz;
+  // Dieselben Schriften wie das Overlay der Code-Welt: Space Grotesk, Inter, JetBrains Mono
   return {
-    display: lesen("--font-fredoka"),
-    sans: lesen("--font-nunito"),
-    mono: 'ui-monospace, "Cascadia Code", Consolas, "SF Mono", Menlo, monospace',
+    display: lesen("--font-grotesk", "system-ui, sans-serif"),
+    sans: lesen("--font-inter", "system-ui, sans-serif"),
+    mono: `${lesen("--font-jetbrains", "ui-monospace")}, ui-monospace, Consolas, monospace`,
   };
 }
 

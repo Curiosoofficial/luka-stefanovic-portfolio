@@ -67,18 +67,37 @@ function KachelHuelle({
   style?: React.ComponentProps<typeof motion.div>["style"];
   children: React.ReactNode;
 }) {
-  const hell = zahl.textFarbe !== "#FFF8EE";
+  const code = THEMA === "code";
+  const hell = !code && zahl.textFarbe !== "#FFF8EE";
+  // Code-Welt: dunkles Glas, die Zahl leuchtet in der Farbe der Kachel
+  const flaeche = code
+    ? {
+        background: `radial-gradient(120% 120% at 100% 100%, color-mix(in oklab, ${zahl.farbe} 32%, transparent) 0%, transparent 60%), linear-gradient(165deg, #121a33 0%, #0a0e1d 100%)`,
+        color: "#e9edff",
+      }
+    : { backgroundColor: zahl.farbe, color: zahl.textFarbe };
   return (
     <motion.div
-      style={{ backgroundColor: zahl.farbe, color: zahl.textFarbe, ...style }}
-      className="filz naht stoff-schatten ohne-schein relative h-full overflow-hidden rounded-3xl p-5 [--naht-abstand:8px] md:p-6 flach:py-4"
+      style={{ ...flaeche, ...style }}
+      className={`stoff-schatten ohne-schein relative h-full overflow-hidden rounded-3xl p-5 md:p-6 flach:py-4 ${
+        code ? "border border-white/10" : "filz naht [--naht-abstand:8px]"
+      }`}
     >
       <span
         aria-hidden
         className="absolute -right-8 -bottom-10 size-32 rounded-full border-[14px]"
-        style={{ borderColor: hell ? "rgba(11,11,20,0.12)" : "rgba(245,243,255,0.16)" }}
+        style={{
+          borderColor: code
+            ? `color-mix(in oklab, ${zahl.farbe} 22%, transparent)`
+            : hell
+              ? "rgba(11,11,20,0.12)"
+              : "rgba(245,243,255,0.16)",
+        }}
       />
-      <p className="relative font-display text-5xl leading-none font-extrabold tracking-tight tabular-nums md:text-6xl flach:text-5xl">
+      <p
+        className="relative font-display text-5xl leading-none font-extrabold tracking-tight tabular-nums md:text-6xl flach:text-5xl"
+        style={code ? { color: zahl.farbe, textShadow: `0 0 28px color-mix(in oklab, ${zahl.farbe} 55%, transparent)` } : undefined}
+      >
         {children}
       </p>
       <p className="relative mt-3 text-sm leading-snug font-medium md:text-base flach:mt-2 flach:text-sm">{zahl.label}</p>

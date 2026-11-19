@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Fredoka, Nunito } from "next/font/google";
+import { Caveat, Fredoka, Inter, JetBrains_Mono, Nunito, Space_Grotesk } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { profil } from "@/data/profil";
@@ -25,6 +25,12 @@ const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin", "latin-ext"],
 });
+
+// Schriften der Code-Welt: technisch, klar, erwachsen (Titel, Fliesstext, Labels).
+// next/font verlangt feste Werte, darum kein bedingtes Vorladen: Beim Wechsel zur Strickwelt hier preload: false setzen.
+const grotesk = Space_Grotesk({ variable: "--font-grotesk", subsets: ["latin", "latin-ext"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin", "latin-ext"] });
+const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin", "latin-ext"] });
 
 // Auf Vercel setzt die Plattform VERCEL_PROJECT_PRODUCTION_URL automatisch.
 const seitenUrl =
@@ -65,12 +71,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="de-CH"
       data-thema={THEMA}
-      className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} antialiased`}
+      className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} ${grotesk.variable} ${inter.variable} ${jetbrains.variable} antialiased`}
     >
       <body className="min-h-svh">
         <a
           href="#inhalt"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-gelb focus:px-4 focus:py-2 focus:text-schrift"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] focus:rounded-full focus:bg-gelb focus:px-4 focus:py-2 focus:text-tinte"
         >
           Zum Inhalt springen
         </a>

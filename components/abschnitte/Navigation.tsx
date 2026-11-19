@@ -38,7 +38,7 @@ export function Navigation() {
           <SoundKnopf />
           <a
             href="#kontakt"
-            className="bastel-knopf filz rounded-full bg-gelb px-5 py-2 text-sm font-extrabold text-schrift [--kante:#c9951a]"
+            className="bastel-knopf filz rounded-full bg-gelb px-5 py-2 text-sm font-extrabold text-tinte [--kante:#c9951a]"
           >
             Kontakt
           </a>

@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
 import { useRuhig } from "@/components/ui/medien";
+import { THEMA } from "@/components/welt/thema";
 import { skills } from "@/data/profil";
 import { SektionsKopf } from "./SektionsKopf";
 
@@ -26,10 +27,27 @@ function Absperrband({ band, fortschritt, ruhig }: { band: Band; fortschritt: Mo
   // Dreimal hintereinander, damit das Band nie leer wird, egal wie weit es fährt
   const liste = [...band.eintraege, ...band.eintraege, ...band.eintraege];
 
+  // Code-Welt: dunkler Laufschrift-Streifen mit leuchtenden Kanten statt Absperrband aus Filz
+  const code = THEMA === "code";
   return (
     <div
-      className="filz ohne-schein stoff-schatten relative -mx-[5vw] py-4 outline-[3px] -outline-offset-[10px] outline-white/70 outline-dashed md:py-6"
-      style={{ backgroundColor: band.farbe, color: band.text, rotate: `${band.drehung}deg` }}
+      className={`ohne-schein relative -mx-[5vw] py-4 md:py-6 ${
+        code
+          ? "border-y backdrop-blur-md"
+          : "filz stoff-schatten outline-[3px] -outline-offset-[10px] outline-white/70 outline-dashed"
+      }`}
+      style={
+        code
+          ? {
+              backgroundColor: "rgb(9 13 27 / 0.82)",
+              borderColor: `color-mix(in oklab, ${band.farbe} 70%, transparent)`,
+              boxShadow: `0 0 40px -10px ${band.farbe}`,
+              color: band.farbe,
+              textShadow: `0 0 24px color-mix(in oklab, ${band.farbe} 60%, transparent)`,
+              rotate: `${band.drehung}deg`,
+            }
+          : { backgroundColor: band.farbe, color: band.text, rotate: `${band.drehung}deg` }
+      }
     >
       <motion.ul
         style={ruhig ? undefined : { x }}

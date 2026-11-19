@@ -1,3 +1,5 @@
+import { THEMA } from "@/components/welt/thema";
+
 /**
  * Ein aufgenähter Knopf, nur mit CSS, aber plastisch:
  * - gewölbte Oberfläche mit Glanzlicht oben links (radialer Verlauf)
@@ -5,6 +7,7 @@
  * - eingesenkte Mulde in der Mitte (Schatten innen oben, Licht innen unten)
  * - vier gebohrte Löcher mit Tiefe und ein Faden über Kreuz, der selbst einen kleinen Schatten wirft
  * Rein dekorativ, darum aria-hidden.
+ * In der Code-Welt wird daraus ein leuchtender Knoten (Punkt mit Ring), wie ein Status-Licht.
  */
 export function Knopf({
   farbe = "#FFC93C",
@@ -16,6 +19,35 @@ export function Knopf({
   className?: string;
 }) {
   const g = groesse;
+
+  if (THEMA === "code") {
+    return (
+      <span
+        aria-hidden
+        className={`relative inline-grid shrink-0 place-items-center rounded-full ${className}`}
+        style={{
+          width: g,
+          height: g,
+          background: `radial-gradient(circle, color-mix(in oklab, ${farbe} 30%, transparent) 0%, transparent 70%)`,
+        }}
+      >
+        <span
+          className="absolute inset-[16%] rounded-full"
+          style={{ border: `1px solid color-mix(in oklab, ${farbe} 65%, transparent)` }}
+        />
+        <span
+          className="rounded-full"
+          style={{
+            width: g * 0.36,
+            height: g * 0.36,
+            background: farbe,
+            boxShadow: `0 0 ${Math.max(4, g * 0.35)}px ${farbe}, inset 0 1px 0 rgb(255 255 255 / 0.6)`,
+          }}
+        />
+      </span>
+    );
+  }
+
   const loch = g * 0.13;
   const abstand = g * 0.12;
   const px = (wert: number, minimum = 1) => `${Math.max(minimum, wert).toFixed(1)}px`;

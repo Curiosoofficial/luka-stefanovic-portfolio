@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { TiltKarte } from "@/components/ui/TiltKarte";
 import { projekte, type Projekt } from "@/data/projects";
+import { THEMA } from "@/components/welt/thema";
 import { SektionsKopf } from "./SektionsKopf";
 
 /** Ist die Farbe so hell, dass dunkler Text darauf besser lesbar ist? */
@@ -35,11 +36,21 @@ function Cover({ projekt }: { projekt: Projekt }) {
       />
     );
   }
-  const hell = istHell(projekt.farbe);
+  const code = THEMA === "code";
+  const hell = !code && istHell(projekt.farbe);
+  // Code-Welt: dunkles Glas, die Projektfarbe leuchtet als Verlauf von oben rechts
+  const flaeche = code
+    ? {
+        background: `radial-gradient(130% 120% at 100% 0%, color-mix(in oklab, ${projekt.farbe} 75%, transparent) 0%, transparent 62%), linear-gradient(160deg, color-mix(in oklab, ${projekt.farbe} 22%, #0b1022) 0%, #090d1b 100%)`,
+        color: "#f4f6ff",
+      }
+    : { backgroundColor: projekt.farbe, color: hell ? "#2E1F15" : "#FFF8EE" };
   return (
     <div
-      className="filz naht ohne-schein absolute inset-0 flex flex-col justify-between overflow-hidden rounded-[inherit] p-6 [--naht-abstand:8px]"
-      style={{ backgroundColor: projekt.farbe, color: hell ? "#2E1F15" : "#FFF8EE" }}
+      className={`ohne-schein absolute inset-0 flex flex-col justify-between overflow-hidden rounded-[inherit] p-6 ${
+        code ? "" : "filz naht [--naht-abstand:8px]"
+      }`}
+      style={flaeche}
     >
       <span
         aria-hidden
@@ -86,7 +97,7 @@ function ProjektKarte({
                 className="rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-[0.12em] uppercase"
                 style={{
                   backgroundColor: `color-mix(in oklab, ${projekt.farbe} 25%, transparent)`,
-                  color: `color-mix(in oklab, ${projekt.farbe} 50%, black)`,
+                  color: `color-mix(in oklab, ${projekt.farbe} ${THEMA === "code" ? "65%, white" : "50%, black"})`,
                 }}
               >
                 {projekt.art}
@@ -116,7 +127,7 @@ function ProjektKarte({
                   href={projekt.live}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bastel-knopf filz inline-flex items-center gap-2 rounded-full bg-gelb px-4 py-2 font-extrabold text-schrift [--kante:#c9951a]"
+                  className="bastel-knopf filz inline-flex items-center gap-2 rounded-full bg-gelb px-4 py-2 font-extrabold text-tinte [--kante:#c9951a]"
                 >
                   Live ansehen <span aria-hidden>↗</span>
                   <span className="sr-only">(öffnet in neuem Tab)</span>
