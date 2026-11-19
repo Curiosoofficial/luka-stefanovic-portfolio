@@ -153,7 +153,7 @@ export const projekte: Projekt[] = [
     slug: "portfolio",
     titel: "Dieses Portfolio",
     art: "Eigenes Projekt",
-    kurz: "Next.js mit einer gestrickten 3D-Welt aus Three.js, durch die man beim Scrollen nach unten reist.",
+    kurz: "Next.js mit einer 3D-Welt aus Three.js, die sich beim Scrollen Schritt für Schritt verwandelt.",
     technik: ["Next.js", "TypeScript", "Three.js", "React Three Fiber", "Motion"],
     farbe: "#FFC93C",
     github: "https://github.com/Curiosoofficial/luka-stefanovic-portfolio",

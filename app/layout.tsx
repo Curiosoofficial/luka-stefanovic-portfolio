@@ -5,6 +5,7 @@ import "./globals.css";
 import { profil } from "@/data/profil";
 import { Providers } from "@/components/Providers";
 import { WeltBuehne } from "@/components/welt/WeltBuehne";
+import { THEMA } from "@/components/welt/thema";
 import { Cursor } from "@/components/ui/Cursor";
 
 // Titel: rund und dick, wie aus Filz ausgeschnitten
@@ -34,7 +35,9 @@ const seitenUrl =
 
 const titel = `${profil.name} · ${profil.rolle} (${profil.stack}) in ${profil.ort}`;
 const beschreibung =
-  "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Eine gestrickte 3D-Welt aus Wolle und Filz, durch die man beim Scrollen reist.";
+  THEMA === "code"
+    ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Beim Scrollen wird aus Code eine fertige Website, live in 3D."
+    : "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Eine gestrickte 3D-Welt aus Wolle und Filz, durch die man beim Scrollen reist.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(seitenUrl),
@@ -53,14 +56,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4e8d4",
-  colorScheme: "light",
+  themeColor: THEMA === "code" ? "#05060c" : "#f4e8d4",
+  colorScheme: THEMA === "code" ? "dark" : "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="de-CH"
+      data-thema={THEMA}
       className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} antialiased`}
     >
       <body className="min-h-svh">

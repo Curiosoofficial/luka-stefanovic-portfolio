@@ -2,9 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { THEMA } from "./thema";
 
 // Three.js ist gross. Mit ssr: false landet es nicht im Server-HTML und blockiert den Text nicht.
-const WeltSzene = dynamic(() => import("./WeltSzene"), { ssr: false });
+// Geladen wird nur die Welt, die gerade eingestellt ist (siehe thema.ts).
+const Szene = dynamic(() => (THEMA === "code" ? import("@/components/code/CodeSzene") : import("./WeltSzene")), {
+  ssr: false,
+});
 
 /**
  * Fixe Bühne hinter der ganzen Seite.
@@ -27,7 +31,7 @@ export function WeltBuehne() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-      {laden && <WeltSzene />}
+      {laden && <Szene />}
     </div>
   );
 }

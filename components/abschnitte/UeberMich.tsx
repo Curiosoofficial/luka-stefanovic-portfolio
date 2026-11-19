@@ -6,6 +6,7 @@ import { useBreit, useRuhig } from "@/components/ui/medien";
 import { WortReveal } from "@/components/ui/WortReveal";
 import { kennzahlen, ueberMich } from "@/data/profil";
 import { SektionsKopf } from "./SektionsKopf";
+import { THEMA, WELT_TEXTE } from "@/components/welt/thema";
 
 type Kennzahl = (typeof kennzahlen)[number];
 
@@ -117,10 +118,10 @@ export function UeberMich() {
               className="mt-6 text-xl leading-snug font-semibold lg:text-2xl flach:mt-4 flach:text-lg"
             />
           </div>
-          {/* Rechts bleibt Platz für die Erdwelt dahinter: Wurm, Knöpfe und Woll-Wurzeln */}
+          {/* Rechts bleibt Platz für die 3D-Welt dahinter */}
           <div className="hidden items-start justify-end md:flex">
             <p className="ohne-schein stoff-schatten rotate-2 rounded-lg bg-wolle px-4 py-2 font-hand text-2xl">
-              Willkommen unter der Erde.
+              {WELT_TEXTE[THEMA].ueberMich}
             </p>
           </div>
         </div>

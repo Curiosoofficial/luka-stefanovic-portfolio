@@ -40,7 +40,7 @@ export const heroKarten = [
   {
     kicker: "Stack",
     titel: "React. Next.js. TypeScript.",
-    text: "Dazu Tailwind CSS, Motion und Three.js. Die Bastelwelt hinter diesen Karten ist echtes 3D.",
+    text: "Dazu Tailwind CSS, Motion und Three.js. Die Welt hinter diesen Karten ist echtes 3D.",
     farbe: "#FFC93C",
     textFarbe: "#2E1F15",
   },

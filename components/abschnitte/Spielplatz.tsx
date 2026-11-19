@@ -88,7 +88,7 @@ export function Spielplatz() {
           <SektionsKopf nummer="04" label="Spielplatz" titel="Wenn ich nicht code …" />
           <p className="mt-5 text-lg font-semibold text-schrift/85">
             … baue ich 3D-Welten, kleine Spiele und Beats. Das schult das Auge für Details. Manchmal landet es direkt im
-            Code, wie die Bastelwelten hinter diesem Text.
+            Code, wie die 3D-Welt hinter diesem Text.
           </p>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3">

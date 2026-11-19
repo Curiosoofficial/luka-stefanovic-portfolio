@@ -6,6 +6,7 @@ import { useRef, useState, type CSSProperties } from "react";
 import { Knopf } from "@/components/ui/Knopf";
 import { MagnetKnopf } from "@/components/ui/MagnetKnopf";
 import { useRuhig } from "@/components/ui/medien";
+import { THEMA, WELT_TEXTE } from "@/components/welt/thema";
 import { heroKarten, profil } from "@/data/profil";
 
 /** Garnfarben für die Buchstaben des Nachnamens, der Reihe nach */
@@ -188,8 +189,8 @@ export function Hero() {
               {profil.status}
             </p>
             <div className="ohne-schein hidden rotate-2 rounded-lg bg-wolle/90 px-4 py-2 text-right stoff-schatten md:block">
-              <p className="font-hand text-2xl leading-none">Maus bewegen: die Welt kippt</p>
-              <p className="font-hand text-xl leading-none text-leise">Klicken: die Buchstaben hüpfen</p>
+              <p className="font-hand text-2xl leading-none">{WELT_TEXTE[THEMA].maus}</p>
+              <p className="font-hand text-xl leading-none text-leise">{WELT_TEXTE[THEMA].klick}</p>
             </div>
           </div>
 
@@ -248,7 +249,7 @@ export function Hero() {
           </div>
 
           <div className="mx-auto mt-8 flex w-full max-w-7xl items-center justify-between font-hand text-2xl text-wolle drop-shadow-[0_1px_2px_rgb(46_31_21_/_0.6)]">
-            <span className="hidden sm:inline">Handgestrickt mit Three.js</span>
+            <span className="hidden sm:inline">{WELT_TEXTE[THEMA].signatur}</span>
             <span className="ml-auto">Runterscrollen ↓</span>
           </div>
         </motion.div>
