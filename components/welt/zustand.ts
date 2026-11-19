@@ -7,4 +7,6 @@ export const weltStore = {
   maus: { x: 0, y: 0, aktiv: false },
   /** Letzter Klick: Zeitpunkt (performance.now). Startwert liegt weit in der Vergangenheit. */
   klick: { zeit: -100000 },
+  /** Code-Welt: welches Projekt die 3D-Seite gerade zeigt (-1: keins, dann der Standard-Inhalt) */
+  projekt: { index: -1 },
 };

@@ -59,7 +59,7 @@ body {
 html[data-thema="code"] {
   --color-grund: #05060c;
   --color-grund-2: #0b0f1d;
-  --color-wolle: rgb(14 20 40 / 0.8);
+  --color-wolle: rgb(14 20 40 / 0.6);
   --color-schrift: #e9edff;
   --color-leise: #8f99c0;
   --color-akzent: #ff5c9a;
@@ -108,7 +108,7 @@ html[data-thema="code"] .font-hand {
 
 /* Glasflächen statt Papier: unscharfer Hintergrund und eine feine helle Kante */
 html[data-thema="code"] :is([class*="bg-wolle"], [class*="bg-grund"]) {
-  backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
   outline: 1px solid rgb(255 255 255 / 0.08);
   outline-offset: -1px;
 }

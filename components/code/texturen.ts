@@ -121,12 +121,53 @@ function rundePfad(ctx: CanvasRenderingContext2D, x: number, y: number, b: numbe
   ctx.roundRect(x, y, b, h, rr);
 }
 
+/** Setzt die Schrift so gross wie möglich, aber höchstens so, dass der Text in die Breite passt */
+function passend(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxBreite: number,
+  groesse: number,
+  schnitt: string,
+  familie: string,
+) {
+  let g = groesse;
+  ctx.font = `${schnitt} ${g}px ${familie}`;
+  const breite = ctx.measureText(text).width;
+  if (breite > maxBreite) {
+    g = Math.max(8, g * (maxBreite / breite));
+    ctx.font = `${schnitt} ${g}px ${familie}`;
+  }
+  return g;
+}
+
+/** Bricht Text auf höchstens «zeilen» Zeilen um, der Rest endet mit … (die Schrift muss schon gesetzt sein) */
+function umbrechen(ctx: CanvasRenderingContext2D, text: string, maxBreite: number, zeilen: number) {
+  const ergebnis: string[] = [];
+  let aktuell = "";
+  for (const wort of text.split(" ")) {
+    const probe = aktuell ? `${aktuell} ${wort}` : wort;
+    if (ctx.measureText(probe).width <= maxBreite || !aktuell) aktuell = probe;
+    else {
+      ergebnis.push(aktuell);
+      aktuell = wort;
+    }
+  }
+  ergebnis.push(aktuell);
+  if (ergebnis.length <= zeilen) return ergebnis;
+  const gekuerzt = ergebnis.slice(0, zeilen);
+  let letzte = gekuerzt[zeilen - 1];
+  while (letzte.length > 1 && ctx.measureText(`${letzte} …`).width > maxBreite) letzte = letzte.slice(0, -1);
+  gekuerzt[zeilen - 1] = `${letzte.trimEnd()} …`;
+  return gekuerzt;
+}
+
 /** Pixel pro Welt-Einheit: genug für scharfen Text, höchstens 2048 Pixel breit */
 const DICHTE = 110;
 
 /**
  * Die sichtbare Oberfläche eines fertigen Bausteins, so wie er in einer echten Website aussehen würde.
  * Bewusst dunkel mit Neon-Akzenten: Die Farben der Seite (Pink, Gelb, Blau) leuchten auf Schwarz.
+ * Zeigt die Seite ein Projekt, stehen dessen Titel, Beschreibung und Technik in denselben Bausteinen.
  */
 export function uiTextur(modul: Modul, schriften: Schriften) {
   const faktor = Math.min(1, 2048 / (modul.b * DICHTE));
@@ -135,6 +176,7 @@ export function uiTextur(modul: Modul, schriften: Schriften) {
   const { c, ctx } = leinwand(B, H);
   const e = DICHTE * faktor; // eine Welt-Einheit in Pixeln
   const radius = modul.art === "knopf" || modul.art === "link" ? H / 2 : Math.min(H, B) * 0.12;
+  const text = modul.text ?? "";
 
   ctx.textBaseline = "middle";
 
@@ -173,30 +215,28 @@ export function uiTextur(modul: Modul, schriften: Schriften) {
       ctx.beginPath();
       ctx.arc(H * 0.42, H / 2, H * 0.26, 0, Math.PI * 2);
       ctx.fill();
-      ctx.font = `700 ${H * 0.78}px ${schriften.display}`;
+      passend(ctx, text, B - H * 0.9, H * 0.78, "700", schriften.display);
       ctx.fillStyle = "#f5f7ff";
-      ctx.fillText(modul.text ?? "", H * 0.85, H * 0.54);
+      ctx.fillText(text, H * 0.85, H * 0.54);
       break;
     }
     case "link": {
-      ctx.font = `700 ${H * 0.52}px ${schriften.sans}`;
+      passend(ctx, text, B * 0.95, H * 0.52, "700", schriften.sans);
       ctx.fillStyle = "#c9d3f5";
       ctx.textAlign = "center";
-      ctx.fillText(modul.text ?? "", B / 2, H * 0.46);
+      ctx.fillText(text, B / 2, H * 0.46);
       ctx.fillStyle = modul.farbe;
       ctx.fillRect(B * 0.3, H * 0.86, B * 0.4, Math.max(2, H * 0.06));
       break;
     }
     case "titel": {
-      ctx.font = `700 ${H * 0.86}px ${schriften.display}`;
-      const text = modul.text ?? "";
+      passend(ctx, text, B * 0.98, H * 0.86, "700", schriften.display);
       if (modul.farbe === NEON.gelb) {
         ctx.fillStyle = "#f5f7ff";
       } else {
-        const breite = ctx.measureText(text).width;
-        const verlauf = ctx.createLinearGradient(0, 0, breite, 0);
+        const verlauf = ctx.createLinearGradient(0, 0, Math.max(1, ctx.measureText(text).width), 0);
         verlauf.addColorStop(0, NEON.pink);
-        verlauf.addColorStop(0.5, NEON.gelb);
+        verlauf.addColorStop(0.5, NEON.lila);
         verlauf.addColorStop(1, NEON.blau);
         ctx.fillStyle = verlauf;
       }
@@ -204,59 +244,108 @@ export function uiTextur(modul: Modul, schriften: Schriften) {
       break;
     }
     case "text": {
-      ctx.font = `600 ${H * 0.5}px ${schriften.sans}`;
+      // Ein- oder zweizeilig, je nach Länge
+      ctx.font = `500 ${H * 0.36}px ${schriften.sans}`;
+      const zeilen = umbrechen(ctx, text, B * 0.98, 2);
+      if (zeilen.length === 1) ctx.font = `500 ${H * 0.46}px ${schriften.sans}`;
       ctx.fillStyle = "#9aa6cc";
-      ctx.fillText(modul.text ?? "", 0, H * 0.5);
+      zeilen.forEach((zeile, i) => {
+        ctx.fillText(zeile, 0, zeilen.length === 1 ? H * 0.5 : H * (0.28 + i * 0.46));
+      });
       break;
     }
     case "knopf": {
       rundePfad(ctx, 2, 2, B - 4, H - 4, radius);
+      let schriftFarbe = "#1a1405";
       if (modul.umriss) {
         ctx.lineWidth = Math.max(3, H * 0.06);
         ctx.strokeStyle = modul.farbe;
         ctx.stroke();
-        ctx.fillStyle = "#dce6ff";
+        schriftFarbe = "#dce6ff";
       } else {
         ctx.fillStyle = modul.farbe;
         ctx.fill();
-        ctx.fillStyle = "#1a1405";
       }
-      ctx.font = `700 ${H * 0.4}px ${schriften.sans}`;
+      passend(ctx, text, B * 0.8, H * 0.4, "700", schriften.sans);
+      ctx.fillStyle = schriftFarbe;
       ctx.textAlign = "center";
-      ctx.fillText(modul.text ?? "", B / 2, H * 0.52);
+      ctx.fillText(text, B / 2, H * 0.52);
       break;
     }
     case "bild": {
-      // «Hero-Bild»: Abendhimmel über Bergen, abstrahiert
       rundePfad(ctx, 0, 0, B, H, radius);
       ctx.save();
       ctx.clip();
-      const himmel = ctx.createLinearGradient(0, 0, B, H);
-      himmel.addColorStop(0, "#1b1046");
-      himmel.addColorStop(0.55, "#7a2a9c");
-      himmel.addColorStop(1, "#ff6a5c");
-      ctx.fillStyle = himmel;
-      ctx.fillRect(0, 0, B, H);
-      ctx.fillStyle = "rgba(255, 204, 61, 0.92)";
-      ctx.beginPath();
-      ctx.arc(B * 0.68, H * 0.5, H * 0.2, 0, Math.PI * 2);
-      ctx.fill();
-      const berge = [
-        { farbe: "rgba(40, 18, 90, 0.85)", hoehe: 0.55, zacken: [0, 0.18, 0.32, 0.5, 0.62, 0.8, 1] },
-        { farbe: "rgba(14, 10, 40, 0.95)", hoehe: 0.72, zacken: [0, 0.12, 0.3, 0.45, 0.66, 0.84, 1] },
-      ];
-      berge.forEach((berg, bi) => {
-        ctx.fillStyle = berg.farbe;
-        ctx.beginPath();
-        ctx.moveTo(0, H);
-        berg.zacken.forEach((x, i) => {
-          const y = H * berg.hoehe - (i % 2 === 1 ? H * (0.2 + bi * 0.05) : 0);
-          ctx.lineTo(B * x, y);
+      if (text) {
+        // «Bildschirm» eines Projekts: Farbverlauf in der Projektfarbe, Adressleiste, grosser Titel
+        const himmel = ctx.createLinearGradient(0, 0, B, H);
+        himmel.addColorStop(0, "#0d1230");
+        himmel.addColorStop(0.55, "#1d1a4a");
+        himmel.addColorStop(1, modul.farbe);
+        ctx.fillStyle = himmel;
+        ctx.fillRect(0, 0, B, H);
+        // weiche Lichtkreise
+        const kreise: [number, number, number, number][] = [
+          [0.78, 0.3, 0.42, 0.3],
+          [0.2, 0.95, 0.5, 0.18],
+        ];
+        for (const [x, y, r, a] of kreise) {
+          const licht = ctx.createRadialGradient(B * x, H * y, 0, B * x, H * y, H * r);
+          licht.addColorStop(0, `rgba(255, 255, 255, ${a})`);
+          licht.addColorStop(1, "rgba(255, 255, 255, 0)");
+          ctx.fillStyle = licht;
+          ctx.fillRect(0, 0, B, H);
+        }
+        // Adressleiste
+        const leiste = H * 0.13;
+        ctx.fillStyle = "rgba(5, 8, 20, 0.6)";
+        ctx.fillRect(0, 0, B, leiste);
+        [NEON.pink, NEON.gelb, NEON.gruen].forEach((f, k) => {
+          ctx.fillStyle = f;
+          ctx.beginPath();
+          ctx.arc(leiste * (0.6 + k * 0.55), leiste / 2, leiste * 0.16, 0, Math.PI * 2);
+          ctx.fill();
         });
-        ctx.lineTo(B, H);
-        ctx.closePath();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+        rundePfad(ctx, leiste * 2.4, leiste * 0.2, B * 0.6, leiste * 0.6, leiste * 0.3);
         ctx.fill();
-      });
+        passend(ctx, text, B * 0.56, leiste * 0.38, "500", schriften.mono);
+        ctx.fillStyle = "#e9edff";
+        ctx.fillText(text, leiste * 2.7, leiste * 0.52);
+        // Projekttitel gross
+        const titel = modul.untertitel ?? "";
+        passend(ctx, titel, B * 0.86, H * 0.2, "700", schriften.display);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(titel, B * 0.07, H * 0.72);
+      } else {
+        // Standard: Abendhimmel über Bergen, abstrahiert
+        const himmel = ctx.createLinearGradient(0, 0, B, H);
+        himmel.addColorStop(0, "#1b1046");
+        himmel.addColorStop(0.55, "#7a2a9c");
+        himmel.addColorStop(1, "#ff6a5c");
+        ctx.fillStyle = himmel;
+        ctx.fillRect(0, 0, B, H);
+        ctx.fillStyle = "rgba(255, 204, 61, 0.92)";
+        ctx.beginPath();
+        ctx.arc(B * 0.68, H * 0.5, H * 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        const berge = [
+          { farbe: "rgba(40, 18, 90, 0.85)", hoehe: 0.55, zacken: [0, 0.18, 0.32, 0.5, 0.62, 0.8, 1] },
+          { farbe: "rgba(14, 10, 40, 0.95)", hoehe: 0.72, zacken: [0, 0.12, 0.3, 0.45, 0.66, 0.84, 1] },
+        ];
+        berge.forEach((berg, bi) => {
+          ctx.fillStyle = berg.farbe;
+          ctx.beginPath();
+          ctx.moveTo(0, H);
+          berg.zacken.forEach((x, i) => {
+            const y = H * berg.hoehe - (i % 2 === 1 ? H * (0.2 + bi * 0.05) : 0);
+            ctx.lineTo(B * x, y);
+          });
+          ctx.lineTo(B, H);
+          ctx.closePath();
+          ctx.fill();
+        });
+      }
       ctx.restore();
       break;
     }
@@ -276,9 +365,9 @@ export function uiTextur(modul: Modul, schriften: Schriften) {
       ctx.strokeStyle = "#26305c";
       rundePfad(ctx, 1.5, 1.5, B - 3, H - 3, radius);
       ctx.stroke();
-      ctx.font = `700 ${H * 0.14}px ${schriften.display}`;
+      passend(ctx, text, B * 0.6, H * 0.14, "700", schriften.display);
       ctx.fillStyle = "#f5f7ff";
-      ctx.fillText(modul.text ?? "", B * 0.07, H * 0.7);
+      ctx.fillText(text, B * 0.07, H * 0.7);
       ctx.fillStyle = "#3a4677";
       rundePfad(ctx, B * 0.07, H * 0.82, B * 0.55, H * 0.045, H * 0.02);
       ctx.fill();
@@ -288,10 +377,10 @@ export function uiTextur(modul: Modul, schriften: Schriften) {
       break;
     }
     case "fuss": {
-      ctx.font = `600 ${H * 0.5}px ${schriften.sans}`;
+      passend(ctx, text, B * 0.9, H * 0.5, "600", schriften.sans);
       ctx.fillStyle = "#6f7aa3";
       ctx.textAlign = "center";
-      ctx.fillText(modul.text ?? "", B / 2, H * 0.52);
+      ctx.fillText(text, B / 2, H * 0.52);
       break;
     }
   }

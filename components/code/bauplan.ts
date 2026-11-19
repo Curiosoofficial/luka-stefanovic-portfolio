@@ -21,6 +21,8 @@ export type Modul = {
   farbe: string;
   /** Sichtbarer Inhalt im fertigen Baustein */
   text?: string;
+  /** Zweite Zeile, z. B. der Projekttitel auf dem «Bildschirm» */
+  untertitel?: string;
   /** Knopf ohne Füllung, nur mit Rand */
   umriss?: boolean;
   /** Der Code, aus dem der Baustein entsteht */

@@ -20,12 +20,12 @@ const ABSCHNITTE = ["start", "ueber-mich", "projekte", "skills", "spielplatz", "
  * pos = wo die Kamera steht, ziel = wohin sie schaut.
  */
 const STATIONEN: { pos: [number, number, number]; ziel: [number, number, number] }[] = [
-  { pos: [0, 0.5, 24], ziel: [0, 0, -2] }, // Code-Wolke, frontal
-  { pos: [11, 4.5, 19], ziel: [0, 0.4, 0] }, // Drahtgitter, schräg von oben rechts
-  { pos: [-10.5, 2.5, 18.5], ziel: [0.5, 0, 0] }, // Glas-Bausteine, von links
-  { pos: [0, 0.3, 19.5], ziel: [0, 0, 0] }, // fertige Seite, frontal
-  { pos: [6, -2.2, 17.5], ziel: [1, -0.8, 0] }, // näher an den Karten, die Seite geht live
-  { pos: [-2.5, 1.5, 29], ziel: [0, -0.3, -2] }, // zurück: Rahmen breiten sich um die fertige Seite aus
+  { pos: [0, 0.5, 24], ziel: [0, 0, -2] }, // Hero: Editor oben rechts, Text der Seite links unten
+  { pos: [8, 3.5, 20], ziel: [0, 0.4, 0] }, // Drahtgitter, schräg von oben rechts
+  { pos: [-6.5, 1.8, 20], ziel: [0, 0, 0] }, // fertige Seite, leicht von links: zeigt die Projekte
+  { pos: [-2.5, 0.6, 20.5], ziel: [0, 0, 0] }, // fast frontal, die Seite geht live
+  { pos: [4, -3, 20], ziel: [0, -3.2, 0] }, // Spielplatz: Seite rutscht nach oben, über die Kacheln
+  { pos: [-2, 1.2, 23], ziel: [0, -0.2, -1] }, // Finale mit den leuchtenden Rahmen
 ];
 
 const KURVE_POS = new THREE.CatmullRomCurve3(
@@ -44,6 +44,12 @@ const pos = new THREE.Vector3();
 const ziel = new THREE.Vector3();
 const versatz = new THREE.Vector3();
 const blickZiel = new THREE.Vector3();
+const blickRichtung = new THREE.Vector3();
+const seitwaerts = new THREE.Vector3();
+const OBEN = new THREE.Vector3(0, 1, 0);
+
+/** Breite der fertigen Seite plus etwas Luft: so viel muss in die rechte Bildhälfte passen */
+const SEITE_MIT_RAND = 20;
 
 /**
  * Fortschritt aus der Scroll-Position: 0 bis 5, eine Stufe pro Abschnitt.
@@ -97,17 +103,28 @@ function Welt({ schriften, sparsam, ruhig }: { schriften: Schriften; sparsam: bo
     const seitKlick = performance.now() - weltStore.klick.zeit;
     const puls = still ? 0 : Math.exp(-seitKlick / 320) * (seitKlick < 1500 ? 1 : 0);
 
+    // Die 3D-Seite zeigt das Projekt, das links gerade offen ist (nur solange der Projekt-Abschnitt läuft)
+    welt.zeigeProjekt(weltStore.projekt.index);
     welt.update(s.t, state.clock.elapsedTime, dt, puls, still);
 
-    // Kamera auf der Kurve; auf schmalen Bildschirmen weiter weg, damit die Seite ganz ins Bild passt
+    // Kamera auf der Kurve
     const u = s.t / (STATIONEN.length - 1);
     KURVE_POS.getPoint(u, pos);
     KURVE_ZIEL.getPoint(u, ziel);
     const kamera = state.camera as THREE.PerspectiveCamera;
     const sichtbreite = 2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * kamera.aspect;
-    // Ganz zurück erst, wenn die Seite als Ganzes zu sehen ist; die Code-Wolke darf über den Rand gehen
-    const vollFaktor = Math.max(1, 14 / sichtbreite / 19.5);
-    const faktor = 1 + (vollFaktor - 1) * THREE.MathUtils.smoothstep(s.t, 0.6, 2.2);
+    const abstandStation = pos.distanceTo(ziel);
+
+    // Aufteilung des Bildschirms: Ab «Über mich» steht der Text links, die 3D-Seite rechts daneben.
+    // Auf schmalen (Hochformat-)Bildschirmen geht das nicht, dort bleibt die Seite mittig hinter dem Text.
+    const breitbild = THREE.MathUtils.smoothstep(kamera.aspect, 1.05, 1.35);
+    const rechts = THREE.MathUtils.smoothstep(s.t, 0.5, 1.1) * breitbild;
+    // So weit weg, dass die Seite in die rechte Hälfte (bzw. auf dem Handy ganz ins Bild) passt
+    const abstandHaelfte = SEITE_MIT_RAND / (sichtbreite * 0.5);
+    const abstandGanz = 14 / sichtbreite;
+    const zielAbstand = THREE.MathUtils.lerp(abstandGanz, abstandHaelfte, breitbild);
+    const aufbau = THREE.MathUtils.smoothstep(s.t, 0.45, 1.1);
+    const faktor = Math.max(1, 1 + (zielAbstand / abstandStation - 1) * aufbau);
     versatz.copy(pos).sub(ziel).multiplyScalar(faktor);
 
     // Maus: Kamera folgt leicht (Parallaxe)
@@ -120,6 +137,13 @@ function Welt({ schriften, sparsam, ruhig }: { schriften: Schriften; sparsam: bo
     kamera.position.x += s.mx * 1.8 * abstand;
     kamera.position.y += s.my * 1.0 * abstand;
     blickZiel.copy(ziel);
+
+    // Kamera und Blickpunkt gemeinsam nach links schieben: Die Seite rutscht dadurch in die rechte Bildhälfte
+    blickRichtung.copy(blickZiel).sub(kamera.position).normalize();
+    seitwaerts.crossVectors(blickRichtung, OBEN).normalize();
+    const verschiebung = sichtbreite * kamera.position.distanceTo(blickZiel) * 0.25 * rechts;
+    kamera.position.addScaledVector(seitwaerts, -verschiebung);
+    blickZiel.addScaledVector(seitwaerts, -verschiebung);
     kamera.lookAt(blickZiel);
   });
 
