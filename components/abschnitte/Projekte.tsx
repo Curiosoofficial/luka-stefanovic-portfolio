@@ -38,9 +38,12 @@ function Cover({ projekt }: { projekt: Projekt }) {
     );
   }
   const code = THEMA === "code";
-  const hell = !code && istHell(projekt.farbe);
-  // Code-Welt: dunkles Glas, die Projektfarbe leuchtet als Verlauf von oben rechts
-  const flaeche = code
+  const glas = THEMA === "glas";
+  const hell = !code && !glas && istHell(projekt.farbe);
+  // Glas-Welt: alle Cover tintenblau (die 30 %), Code-Welt: dunkles Glas mit Lichtschein in der Projektfarbe
+  const flaeche = glas
+    ? { backgroundColor: "#14213D", color: "#F3F2EE" }
+    : code
     ? {
         background: `radial-gradient(130% 120% at 100% 0%, color-mix(in oklab, ${projekt.farbe} 75%, transparent) 0%, transparent 62%), linear-gradient(160deg, color-mix(in oklab, ${projekt.farbe} 22%, #0b1022) 0%, #090d1b 100%)`,
         color: "#f4f6ff",
@@ -49,19 +52,19 @@ function Cover({ projekt }: { projekt: Projekt }) {
   return (
     <div
       className={`ohne-schein absolute inset-0 flex flex-col justify-between overflow-hidden rounded-[inherit] p-6 ${
-        code ? "" : "filz naht [--naht-abstand:8px]"
+        code || glas ? "" : "filz naht [--naht-abstand:8px]"
       }`}
       style={flaeche}
     >
       <span
         aria-hidden
         className="absolute -right-14 -bottom-20 size-60 rounded-full border-[22px] transition-transform duration-700 group-hover:scale-110"
-        style={{ borderColor: hell ? "rgba(11,11,20,0.12)" : "rgba(245,243,255,0.16)" }}
+        style={{ borderColor: glas ? "rgb(252 163 17 / 0.22)" : hell ? "rgba(11,11,20,0.12)" : "rgba(245,243,255,0.16)" }}
       />
       <span
         aria-hidden
         className="absolute top-6 right-6 size-10 rotate-12 rounded-xl transition-transform duration-700 group-hover:rotate-45"
-        style={{ backgroundColor: hell ? "rgba(11,11,20,0.16)" : "rgba(245,243,255,0.2)" }}
+        style={{ backgroundColor: glas ? "#FCA311" : hell ? "rgba(11,11,20,0.16)" : "rgba(245,243,255,0.2)" }}
       />
       <span className="relative font-hand text-2xl leading-none">{adresse(projekt)}</span>
       <span className="relative max-w-[85%] font-display text-4xl leading-[0.9] font-bold tracking-tight md:text-5xl flach:text-3xl">
@@ -96,10 +99,14 @@ function ProjektKarte({
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className="rounded-full px-2.5 py-1 text-[11px] font-extrabold tracking-[0.12em] uppercase"
-                style={{
-                  backgroundColor: `color-mix(in oklab, ${projekt.farbe} 25%, transparent)`,
-                  color: `color-mix(in oklab, ${projekt.farbe} ${THEMA === "code" ? "65%, white" : "50%, black"})`,
-                }}
+                style={
+                  THEMA === "glas"
+                    ? { backgroundColor: "rgb(20 33 61 / 0.07)", color: "#14213D" }
+                    : {
+                        backgroundColor: `color-mix(in oklab, ${projekt.farbe} 25%, transparent)`,
+                        color: `color-mix(in oklab, ${projekt.farbe} ${THEMA === "code" ? "65%, white" : "50%, black"})`,
+                      }
+                }
               >
                 {projekt.art}
               </span>

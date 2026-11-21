@@ -25,7 +25,13 @@ function ScrollKachel({ zahl, i, fortschritt }: { zahl: Kennzahl; i: number; for
   const ende = start + KACHEL_DAUER;
   const y = useTransform(fortschritt, [start, ende], [140, 0]);
   const deckkraft = useTransform(fortschritt, [start, start + 0.04], [0, 1]);
-  const drehen = useTransform(fortschritt, [start, ende], [i % 2 === 0 ? -10 : 10, i % 2 === 0 ? -1.5 : 1.5]);
+  // In der Strickwelt landen die Kacheln leicht schief wie aufgeklebt, sonst stehen sie am Ende gerade
+  const schief = THEMA === "strick";
+  const drehen = useTransform(
+    fortschritt,
+    [start, ende],
+    schief ? [i % 2 === 0 ? -10 : 10, i % 2 === 0 ? -1.5 : 1.5] : [i % 2 === 0 ? -4 : 4, 0],
+  );
   const wert = useTransform(fortschritt, [start, ende + 0.06], [zahl.von, zahl.wert]);
   const text = useTransform(wert, (v) => String(Math.round(v)));
 
@@ -68,9 +74,12 @@ function KachelHuelle({
   children: React.ReactNode;
 }) {
   const code = THEMA === "code";
+  const glas = THEMA === "glas";
   const hell = !code && zahl.textFarbe !== "#FFF8EE";
-  // Code-Welt: dunkles Glas, die Zahl leuchtet in der Farbe der Kachel
-  const flaeche = code
+  // Glas-Welt: helle Kacheln, grosse Zahl in Tintenblau; Code-Welt: dunkles Glas, die Zahl leuchtet
+  const flaeche = glas
+    ? { backgroundColor: "#FBFAF7", color: "#14213D" }
+    : code
     ? {
         background: `radial-gradient(120% 120% at 100% 100%, color-mix(in oklab, ${zahl.farbe} 32%, transparent) 0%, transparent 60%), linear-gradient(165deg, #121a33 0%, #0a0e1d 100%)`,
         color: "#e9edff",
@@ -80,14 +89,16 @@ function KachelHuelle({
     <motion.div
       style={{ ...flaeche, ...style }}
       className={`stoff-schatten ohne-schein relative h-full overflow-hidden rounded-3xl p-5 md:p-6 flach:py-4 ${
-        code ? "border border-white/10" : "filz naht [--naht-abstand:8px]"
+        code ? "border border-white/10" : glas ? "border border-schrift/10" : "filz naht [--naht-abstand:8px]"
       }`}
     >
       <span
         aria-hidden
         className="absolute -right-8 -bottom-10 size-32 rounded-full border-[14px]"
         style={{
-          borderColor: code
+          borderColor: glas
+            ? "rgb(252 163 17 / 0.16)"
+            : code
             ? `color-mix(in oklab, ${zahl.farbe} 22%, transparent)`
             : hell
               ? "rgba(11,11,20,0.12)"

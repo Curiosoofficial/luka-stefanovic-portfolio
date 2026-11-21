@@ -24,14 +24,18 @@ function istHell(hex: string) {
  * Eine Spielplatz-Kachel: dicke 3D-Filzplatte mit Naht und Knopf (siehe KartenKoerper), der Text liegt als HTML darüber.
  * Bis das 3D-Bild gezeichnet ist, steht eine flache Filzfläche als Platzhalter da.
  */
-function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
+function Kachel({ eintrag, index }: { eintrag: SpielplatzEintrag; index: number }) {
   const soundAn = useSoundAn();
   const hell = istHell(eintrag.farbe);
   const knopfFarbe = hell ? "#3A86D8" : "#FFC93C";
   const [koerperDa, setKoerperDa] = useState(false);
   const code = THEMA === "code";
-  // Code-Welt: dunkles Glas mit einem Lichtschein in der Farbe der Kachel
-  const flaeche = code
+  const glas = THEMA === "glas";
+  const dunkel = glas && index === 1;
+  // Glas-Welt: helle Kacheln, die mittlere tintenblau; Code-Welt: dunkles Glas mit Lichtschein
+  const flaeche = glas
+    ? { backgroundColor: dunkel ? "#14213D" : "#FBFAF7", color: dunkel ? "#F3F2EE" : "#14213D" }
+    : code
     ? {
         background: `radial-gradient(120% 110% at 0% 0%, color-mix(in oklab, ${eintrag.farbe} 40%, transparent) 0%, transparent 60%), linear-gradient(170deg, #121a33 0%, #0a0e1d 100%)`,
         color: "#e9edff",
@@ -40,11 +44,13 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
 
   return (
     <TiltKarte farbe={eintrag.farbe} className="h-full rounded-3xl" effekteVorne>
-      {/* Weicher Schatten der Platte auf die Welt dahinter */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-4 top-6 -bottom-4 rounded-3xl shadow-[0_26px_44px_-18px_rgb(20_10_40_/_0.65)]"
-      />
+      {/* Weicher Schatten der Platte auf die Welt dahinter (in der Glas-Welt reicht der feine Kartenschatten) */}
+      {!glas && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-4 top-6 -bottom-4 rounded-3xl shadow-[0_26px_44px_-18px_rgb(20_10_40_/_0.65)]"
+        />
+      )}
       {THEMA === "strick" && (
         <KartenKoerper
           farbe={eintrag.farbe}
@@ -58,18 +64,27 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
       )}
       <div
         className={`ohne-schein relative flex h-full flex-col rounded-3xl p-7 ${
-          code ? "border border-white/10" : koerperDa ? "" : "filz naht [--naht-abstand:12px]"
+          code
+            ? "border border-white/10"
+            : glas
+              ? `stoff-schatten ${dunkel ? "" : "border border-schrift/10"}`
+              : koerperDa
+                ? ""
+                : "filz naht [--naht-abstand:12px]"
         }`}
         style={flaeche}
       >
         <div className="flex items-center justify-between">
           {/* Platz für den 3D-Knopf; bis er da ist, steht ein flacher Knopf dort (Code-Welt: leuchtender Knoten) */}
-          {koerperDa && !code ? (
+          {koerperDa && THEMA === "strick" ? (
             <span aria-hidden className="size-12" />
           ) : (
             <Knopf farbe={code ? eintrag.farbe : knopfFarbe} groesse={48} />
           )}
-          <span className="font-hand text-2xl leading-none" style={code ? { color: eintrag.farbe } : undefined}>
+          <span
+            className="font-hand text-2xl leading-none"
+            style={code ? { color: eintrag.farbe } : glas ? { color: dunkel ? "#FCA311" : "#B86E00" } : undefined}
+          >
             {eintrag.werkzeug}
           </span>
         </div>
@@ -113,7 +128,7 @@ export function Spielplatz() {
         <div className="mt-14 grid gap-6 md:grid-cols-3">
           {spielplatz.map((eintrag, i) => (
             <Einblenden key={eintrag.titel} verzoegerung={i * 0.1} className="h-full">
-              <Kachel eintrag={eintrag} />
+              <Kachel eintrag={eintrag} index={i} />
             </Einblenden>
           ))}
         </div>

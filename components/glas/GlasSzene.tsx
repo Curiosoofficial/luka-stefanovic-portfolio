@@ -93,6 +93,64 @@ function plattenGeometrie(b: number, h: number, r: number, tiefe: number) {
   return geo;
 }
 
+const ABSCHNITTE = ["start", "ueber-mich", "projekte", "skills", "spielplatz", "kontakt"];
+
+/** Wo man auf der Seite ist: 0 bis 5, eine Stufe pro Abschnitt (2.5 = Mitte der Projekte) */
+function fortschrittAusScroll() {
+  const bezug = window.scrollY + window.innerHeight * 0.35;
+  const oben = ABSCHNITTE.map((id) => {
+    const el = document.getElementById(id);
+    return el ? el.getBoundingClientRect().top + window.scrollY : 0;
+  });
+  oben.push(document.documentElement.scrollHeight);
+  for (let i = 0; i < ABSCHNITTE.length; i++) {
+    if (bezug < oben[i + 1]) return i + Math.min(1, Math.max(0, (bezug - oben[i]) / Math.max(1, oben[i + 1] - oben[i])));
+  }
+  return ABSCHNITTE.length - 1;
+}
+
+/**
+ * Posen der Skulptur pro Stelle auf der Seite (t wie oben).
+ * x als Anteil der halben Bildbreite (0 = Mitte, 1 = Rand), y in Welt-Einheiten, s = Grösse.
+ * Wo der Inhalt die ganze Breite braucht (Projekte, Spielplatz), weicht die Skulptur an den Rand aus.
+ */
+const POSEN_BREIT: { t: number; x: number; y: number; s: number }[] = [
+  { t: 0, x: 0.48, y: 0.1, s: 0.8 }, // Hero: rechts neben dem Titel
+  { t: 0.55, x: 0.66, y: 1.3, s: 0.58 }, // Karten im Hero: schaut oben rechts hinter dem Stapel hervor
+  { t: 1.1, x: 0.52, y: -0.1, s: 0.66 }, // Über mich: rechts neben dem Text
+  { t: 1.9, x: 0.52, y: 0, s: 0.62 },
+  { t: 2.15, x: 1.45, y: 1.6, s: 0.5 }, // Projekte: Platz machen, rechts aus dem Bild
+  { t: 2.9, x: 1.45, y: 1.6, s: 0.5 },
+  { t: 3.15, x: 0.55, y: 0.5, s: 0.62 }, // Skills: wieder rechts neben dem Text
+  { t: 3.9, x: 0.55, y: 0.5, s: 0.62 },
+  { t: 4.15, x: 0.62, y: 1.9, s: 0.46 }, // Spielplatz: oben rechts, über den Kacheln
+  { t: 4.85, x: 0.62, y: 1.9, s: 0.46 },
+  { t: 5.1, x: 0.5, y: 0, s: 0.85 }, // Kontakt: gross zum Schluss
+];
+
+/** Auf dem Handy: nur im Hero und beim Kontakt sichtbar, sonst nach oben aus dem Bild */
+const POSEN_SCHMAL: { t: number; x: number; y: number; s: number }[] = [
+  { t: 0, x: 0, y: 2.45, s: 1 },
+  { t: 0.35, x: 0, y: 2.45, s: 1 },
+  { t: 0.6, x: 0, y: 7, s: 0.8 },
+  { t: 4.7, x: 0, y: 7, s: 0.8 },
+  { t: 5.05, x: 0, y: 2.3, s: 1 },
+];
+
+/** Pose an Stelle t: zwischen zwei Posen weich überblendet */
+function pose(posen: typeof POSEN_BREIT, t: number) {
+  if (t <= posen[0].t) return posen[0];
+  for (let i = 0; i < posen.length - 1; i++) {
+    const a = posen[i];
+    const b = posen[i + 1];
+    if (t <= b.t) {
+      const f = THREE.MathUtils.smoothstep(t, a.t, b.t);
+      return { t, x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f, s: a.s + (b.s - a.s) * f };
+    }
+  }
+  return posen[posen.length - 1];
+}
+
 /** Kurzer Puls nach einem Klick, 0 bis 1 */
 function klickPuls() {
   const seit = performance.now() - weltStore.klick.zeit;
@@ -106,7 +164,7 @@ function Skulptur({ ruhig }: { ruhig: React.RefObject<boolean> }) {
   const platte = useRef<THREE.Mesh>(null);
   const perle = useRef<THREE.Mesh>(null);
   const schatten = useRef<THREE.Mesh>(null);
-  const zustand = useRef({ mx: 0, my: 0, scroll: 0, dreh: 0, drehZiel: 0, letzterKlick: -1 });
+  const zustand = useRef({ mx: 0, my: 0, t: 0, x: 0.48, y: 0.1, s: 0.8, dreh: 0, drehZiel: 0, letzterKlick: -1, erstes: true });
 
   const teile = useMemo(() => {
     const ringGeo = new THREE.TorusGeometry(2.05, 0.66, 96, 192);
@@ -151,16 +209,19 @@ function Skulptur({ ruhig }: { ruhig: React.RefObject<boolean> }) {
     const zeit = still ? 0 : state.clock.elapsedTime;
     const kamera = state.camera as THREE.PerspectiveCamera;
 
-    // Platz im Bild: auf breiten Bildschirmen rechts neben dem Text, auf dem Handy oben über dem Text
+    // Platz im Bild: je nach Abschnitt eine eigene Pose, weich nachgezogen
     const halbeBreite = Math.tan(THREE.MathUtils.degToRad(kamera.fov / 2)) * kamera.position.z * kamera.aspect;
     const breit = kamera.aspect >= 1.05;
-    const zielX = breit ? Math.min(3.6, halbeBreite * 0.48) : 0;
-    const zielY = breit ? 0.1 : 2.45;
-    const groesse = breit ? 0.8 : Math.min(0.55, halbeBreite / 4.4);
-
-    // Scrollen: Die Skulptur dreht sich weiter und steigt leicht nach oben weg
-    const scrollZiel = window.scrollY / Math.max(1, window.innerHeight);
-    s.scroll += (scrollZiel - s.scroll) * Math.min(1, dt * 4);
+    const zielT = fortschrittAusScroll();
+    const folgen = s.erstes || still ? 1 : Math.min(1, dt * 3);
+    s.erstes = false;
+    s.t += (zielT - s.t) * folgen;
+    const ziel = pose(breit ? POSEN_BREIT : POSEN_SCHMAL, s.t);
+    s.x += (ziel.x - s.x) * folgen;
+    s.y += (ziel.y - s.y) * folgen;
+    s.s += (ziel.s - s.s) * folgen;
+    const zielX = breit ? Math.min(halbeBreite * s.x, 3.6 + (s.x > 1 ? (s.x - 1) * halbeBreite * 2 : 0)) : 0;
+    const groesse = (breit ? 1 : Math.min(0.55, halbeBreite / 4.4)) * s.s;
 
     // Maus: Die Skulptur neigt sich weich zur Maus
     const maus = weltStore.maus;
@@ -176,13 +237,14 @@ function Skulptur({ ruhig }: { ruhig: React.RefObject<boolean> }) {
     }
     s.dreh += (s.drehZiel - s.dreh) * Math.min(1, dt * 2.4);
 
-    g.position.set(zielX, zielY + s.scroll * 0.9, 0);
+    g.position.set(zielX, s.y, 0);
     g.scale.setScalar(groesse * (1 + puls * 0.05));
-    g.rotation.set(-s.my * 0.25 + s.scroll * 0.25, s.mx * 0.45, 0);
+    g.rotation.set(-s.my * 0.25 + Math.sin(s.t * 1.3) * 0.12, s.mx * 0.45 - Math.sin(s.t * 0.9) * 0.18, 0);
 
     // Ring: schaut zur Kamera, damit man durch die Öffnung auf die orange Kugel sieht; pendelt sanft hin und her
     ring.current.rotation.x = 0.42 + Math.sin(zeit * 0.35) * 0.08;
-    ring.current.rotation.y = Math.sin(zeit * 0.25) * 0.45 + s.dreh + s.scroll * 0.8;
+    // Nie ganz von der Seite: Pendeln und Scrollen zusammen bleiben unter etwa 45 Grad
+    ring.current.rotation.y = Math.sin(zeit * 0.25) * 0.32 + Math.sin(s.t * 1.7) * 0.4 + s.dreh;
     ring.current.position.y = Math.sin(zeit * 0.7) * 0.12;
 
     // Orange Kugel hinter dem Ring: Man sieht sie durch das Loch und gebrochen durch das Glas
@@ -195,9 +257,9 @@ function Skulptur({ ruhig }: { ruhig: React.RefObject<boolean> }) {
     // Kleine Glasperle vorne
     perle.current.position.set(2.35, -1.75 + Math.sin(zeit * 0.9 + 3) * 0.2, 1.3);
 
-    // Schatten am Boden: wird blasser, wenn die Skulptur hochfährt
+    // Schatten am Boden: nur im Hero, wo die Skulptur «auf dem Boden» steht
     schatten.current.position.set(0.2, -3.3, -0.4);
-    (schatten.current.material as THREE.MeshBasicMaterial).opacity = 0.4 * (1 - Math.min(1, s.scroll * 0.6));
+    (schatten.current.material as THREE.MeshBasicMaterial).opacity = 0.4 * (1 - THREE.MathUtils.smoothstep(s.t, 0.1, 0.45));
   });
 
   return (

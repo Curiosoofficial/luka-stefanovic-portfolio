@@ -13,12 +13,12 @@ const gruppen = [
   { titel: "Ausserdem", eintraege: skills.ausserdem },
 ];
 
-type Band = { eintraege: string[]; farbe: string; text: string; drehung: number; richtung: 1 | -1 };
+type Band = { eintraege: string[]; farbe: string; text: string; drehung: number; richtung: 1 | -1; stufe: number };
 
 const baender: Band[] = [
-  { eintraege: skills.kern, farbe: "#FFC93C", text: "#2E1F15", drehung: -4, richtung: 1 },
-  { eintraege: skills.werkzeuge, farbe: "#EE4F86", text: "#2E1F15", drehung: 3, richtung: -1 },
-  { eintraege: skills.ausserdem, farbe: "#3A86D8", text: "#FFF8EE", drehung: -1.5, richtung: 1 },
+  { eintraege: skills.kern, farbe: "#FFC93C", text: "#2E1F15", drehung: -4, richtung: 1, stufe: 0 },
+  { eintraege: skills.werkzeuge, farbe: "#EE4F86", text: "#2E1F15", drehung: 3, richtung: -1, stufe: 1 },
+  { eintraege: skills.ausserdem, farbe: "#3A86D8", text: "#FFF8EE", drehung: -1.5, richtung: 1, stufe: 2 },
 ];
 
 /** Ein schräges Absperrband. Beim Scrollen schiebt es sich seitlich, jedes zweite in die Gegenrichtung. */
@@ -29,15 +29,25 @@ function Absperrband({ band, fortschritt, ruhig }: { band: Band; fortschritt: Mo
 
   // Code-Welt: dunkler Laufschrift-Streifen mit leuchtenden Kanten statt Absperrband aus Filz
   const code = THEMA === "code";
+  // Glas-Welt: gerade, ruhige Bänder in den drei Farben der 60-30-10-Regel
+  const glasStil = [
+    { backgroundColor: "#14213D", color: "#F3F2EE" },
+    { backgroundColor: "#FBFAF7", color: "#14213D", borderColor: "rgb(20 33 61 / 0.12)" },
+    { backgroundColor: "#FCA311", color: "#14213D" },
+  ][band.stufe];
   return (
     <div
       className={`ohne-schein relative -mx-[5vw] py-4 md:py-6 ${
         code
           ? "border-y backdrop-blur-md"
-          : "filz stoff-schatten outline-[3px] -outline-offset-[10px] outline-white/70 outline-dashed"
+          : THEMA === "glas"
+            ? "border-y border-transparent"
+            : "filz stoff-schatten outline-[3px] -outline-offset-[10px] outline-white/70 outline-dashed"
       }`}
       style={
-        code
+        THEMA === "glas"
+          ? glasStil
+          : code
           ? {
               backgroundColor: "rgb(9 13 27 / 0.82)",
               borderColor: `color-mix(in oklab, ${band.farbe} 70%, transparent)`,

@@ -5,6 +5,10 @@ import { useRef, useState } from "react";
 import { MagnetKnopf } from "@/components/ui/MagnetKnopf";
 import { useBreit, useRuhig } from "@/components/ui/medien";
 import { profil } from "@/data/profil";
+import { THEMA } from "@/components/welt/thema";
+
+/** Glas-Welt: Finale in Tintenblau mit orangem Knopf statt pinker Farbflut */
+const GLAS = THEMA === "glas";
 
 const links = [
   { label: "GitHub", href: profil.github },
@@ -27,7 +31,9 @@ function KopierKnopf() {
           // Ohne Zwischenablage-Zugriff bleibt der mailto-Link daneben
         }
       }}
-      className="rounded-full border-2 border-tinte px-6 py-3.5 text-lg font-semibold transition-colors hover:bg-tinte hover:text-pink"
+      className={`rounded-full border-2 px-6 py-3.5 text-lg font-semibold transition-colors ${
+        GLAS ? "border-hell/40 hover:bg-hell hover:text-tinte" : "border-tinte hover:bg-tinte hover:text-pink"
+      }`}
     >
       <span aria-live="polite">{kopiert ? "Kopiert ✓" : "E-Mail kopieren"}</span>
     </button>
@@ -64,7 +70,7 @@ export function Kontakt() {
               <span aria-hidden className="klebeband -top-3 left-12 w-28 -rotate-6" />
               <p className="inline-block -rotate-2 font-hand text-3xl leading-none text-akzent">Nr. 05 · Kontakt</p>
               <h2 className="mt-3 font-display text-[clamp(3rem,7vw,6.5rem)] leading-[0.9] font-bold tracking-[-0.02em]">
-                Lass uns was <span className="text-pink">bauen.</span>
+                Lass uns was <span className={GLAS ? "text-gelb italic" : "text-pink"}>bauen.</span>
               </h2>
               <p className="mt-5 max-w-md text-lg font-semibold text-schrift/85">
                 Ich suche eine Stelle als Junior Frontend-Entwickler in Zürich und Umgebung.
@@ -79,13 +85,15 @@ export function Kontakt() {
         {/* Teil 2: pinke Farbflut */}
         <motion.div
           style={ruhig ? undefined : { clipPath: flut }}
-          className={`filz ohne-schein flex flex-col justify-center overflow-hidden bg-pink px-4 text-tinte md:px-8 ${
+          className={`filz ohne-schein flex flex-col justify-center overflow-hidden bg-pink px-4 md:px-8 ${GLAS ? "text-hell" : "text-tinte"} ${
             ruhig ? "relative min-h-svh py-24" : "absolute inset-0"
           }`}
         >
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-32 -bottom-40 size-[36rem] rounded-full border-[60px] border-tinte/10"
+            className={`pointer-events-none absolute -right-32 -bottom-40 size-[36rem] rounded-full border-[60px] ${
+              GLAS ? "border-hell/[0.06]" : "border-tinte/10"
+            }`}
           />
           <div className="relative mx-auto w-full max-w-7xl">
             <p className="font-mono text-xs tracking-[0.25em] uppercase">Kontakt · {profil.ort}</p>
@@ -105,7 +113,7 @@ export function Kontakt() {
                 <MagnetKnopf
                   href={`mailto:${profil.email}`}
                   staerke={0.2}
-                  className="gap-3 rounded-full bg-tinte px-7 py-4 text-lg font-semibold text-hell"
+                  className={`gap-3 rounded-full px-7 py-4 text-lg font-semibold ${GLAS ? "bg-gelb text-tinte" : "bg-tinte text-hell"}`}
                 >
                   {profil.email}
                   <span aria-hidden>↗</span>
