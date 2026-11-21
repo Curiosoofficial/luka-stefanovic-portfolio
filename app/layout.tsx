@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Fredoka, Inter, JetBrains_Mono, Nunito, Space_Grotesk } from "next/font/google";
+import { Caveat, Fredoka, Instrument_Serif, Inter, JetBrains_Mono, Nunito, Space_Grotesk } from "next/font/google";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 import { profil } from "@/data/profil";
@@ -32,6 +32,14 @@ const grotesk = Space_Grotesk({ variable: "--font-grotesk", subsets: ["latin", "
 const inter = Inter({ variable: "--font-inter", subsets: ["latin", "latin-ext"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin", "latin-ext"] });
 
+// Glas-Welt: elegante Serifenschrift für grosse Titel, dazu Inter für Text
+const instrument = Instrument_Serif({
+  variable: "--font-instrument",
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin", "latin-ext"],
+});
+
 // Auf Vercel setzt die Plattform VERCEL_PROJECT_PRODUCTION_URL automatisch.
 const seitenUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -41,7 +49,9 @@ const seitenUrl =
 
 const titel = `${profil.name} · ${profil.rolle} (${profil.stack}) in ${profil.ort}`;
 const beschreibung =
-  THEMA === "code"
+  THEMA === "glas"
+    ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Klar gestaltet, mit einer Glasskulptur live in 3D."
+    : THEMA === "code"
     ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Beim Scrollen wird aus Code eine fertige Website, live in 3D."
     : "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Eine gestrickte 3D-Welt aus Wolle und Filz, durch die man beim Scrollen reist.";
 
@@ -62,7 +72,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: THEMA === "code" ? "#05060c" : "#f4e8d4",
+  themeColor: THEMA === "code" ? "#05060c" : THEMA === "glas" ? "#f3f2ee" : "#f4e8d4",
   colorScheme: THEMA === "code" ? "dark" : "light",
 };
 
@@ -71,7 +81,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="de-CH"
       data-thema={THEMA}
-      className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} ${grotesk.variable} ${inter.variable} ${jetbrains.variable} antialiased`}
+      className={`${fredoka.variable} ${nunito.variable} ${caveat.variable} ${grotesk.variable} ${inter.variable} ${jetbrains.variable} ${instrument.variable} antialiased`}
     >
       <body className="min-h-svh">
         <a

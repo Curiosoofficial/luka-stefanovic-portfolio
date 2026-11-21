@@ -22,7 +22,9 @@ function mischen(a: string, b: string, t: number) {
   return `rgb(${kanal(x, 16)} ${kanal(x, 8)} ${kanal(x, 0)})`;
 }
 
-function buchstabenFarbe(i: number, anzahl: number) {
+function buchstabenFarbe(i: number, anzahl: number, wort: string): string | undefined {
+  // Glas-Welt: nur das letzte Wort leuchtet in Orange (die 10 % der 60-30-10-Regel)
+  if (THEMA === "glas") return i >= wort.lastIndexOf(" ") + 1 ? "#FCA311" : undefined;
   if (THEMA !== "code") return GARN[i % GARN.length];
   const pos = (i / Math.max(1, anzahl - 1)) * (VERLAUF.length - 1);
   const k = Math.min(VERLAUF.length - 2, Math.floor(pos));
@@ -88,13 +90,18 @@ function FilzPatch({
   const letzte = i === n - 1;
   const [koerperDa, setKoerperDa] = useState(false);
   const code = THEMA === "code";
-  // Code-Welt: dunkles Glas, die Farbe der Karte leuchtet als Lichtschein aus der Ecke
-  const flaeche = code
-    ? {
-        background: `radial-gradient(110% 120% at 100% 0%, color-mix(in oklab, ${karte.farbe} 45%, transparent) 0%, transparent 55%), linear-gradient(165deg, #131b36 0%, #0a0e1d 100%)`,
-        color: "#e9edff",
-      }
-    : { backgroundColor: koerperDa ? "transparent" : karte.farbe, color: karte.textFarbe };
+  const glas = THEMA === "glas";
+  const filz = THEMA === "strick";
+  // Glas-Welt: abwechselnd helle und tintenblaue Karten (60-30-10), Code-Welt: dunkles Glas mit Lichtschein
+  const dunkel = i % 2 === 1;
+  const flaeche = glas
+    ? { backgroundColor: dunkel ? "#14213D" : "#FBFAF7", color: dunkel ? "#F3F2EE" : "#14213D" }
+    : code
+      ? {
+          background: `radial-gradient(110% 120% at 100% 0%, color-mix(in oklab, ${karte.farbe} 45%, transparent) 0%, transparent 55%), linear-gradient(165deg, #131b36 0%, #0a0e1d 100%)`,
+          color: "#e9edff",
+        }
+      : { backgroundColor: koerperDa ? "transparent" : karte.farbe, color: karte.textFarbe };
 
   return (
     <motion.article
@@ -105,10 +112,14 @@ function FilzPatch({
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-x-6 top-8 -bottom-5 rounded-[2.2rem] ${
-          code ? "shadow-[0_40px_80px_-30px_rgb(0_0_0_/_0.9)]" : "shadow-[0_34px_60px_-22px_rgb(50_28_12_/_0.6)]"
+          code
+            ? "shadow-[0_40px_80px_-30px_rgb(0_0_0_/_0.9)]"
+            : glas
+              ? "shadow-[0_40px_80px_-40px_rgb(20_33_61_/_0.55)]"
+              : "shadow-[0_34px_60px_-22px_rgb(50_28_12_/_0.6)]"
         }`}
       />
-      {!code && (
+      {filz && (
         <KartenKoerper
           farbe={karte.farbe}
           knopf={{ farbe: KNOPF_FARBEN[i], groesse: 64, ecke: "oben-rechts", abstand: [64, 72] }}
@@ -119,11 +130,11 @@ function FilzPatch({
       <div
         style={flaeche}
         className={`ohne-schein relative flex flex-col justify-between gap-6 overflow-hidden rounded-[2.2rem] p-8 md:p-12 ${
-          code ? "border border-white/10" : koerperDa ? "" : "filz naht [--naht-abstand:18px]"
+          code ? "border border-white/10" : glas ? (dunkel ? "" : "border border-schrift/10") : koerperDa ? "" : "filz naht [--naht-abstand:18px]"
         } ${ruhig ? "min-h-[60svh]" : "h-full"}`}
       >
         {/* Platzhalter-Knopf, bis der 3D-Knopf da ist (in der Code-Welt bleibt der leuchtende Knoten) */}
-        {(code || !koerperDa) && (
+        {(!filz || !koerperDa) && (
           <Knopf
             farbe={code ? karte.farbe : KNOPF_FARBEN[i]}
             groesse={64}
@@ -131,7 +142,10 @@ function FilzPatch({
           />
         )}
 
-        <p className="relative font-hand text-3xl leading-none" style={code ? { color: karte.farbe } : undefined}>
+        <p
+          className="relative font-hand text-3xl leading-none"
+          style={code ? { color: karte.farbe } : glas ? { color: dunkel ? "#FCA311" : "#B86E00" } : undefined}
+        >
           {String(i + 1).padStart(2, "0")} · {karte.kicker}
         </p>
         <h2 className="relative max-w-[13ch] font-display text-[clamp(2.75rem,8vw,7.5rem)] leading-[0.9] font-bold tracking-[-0.02em]">
@@ -149,7 +163,9 @@ function FilzPatch({
               </MagnetKnopf>
               <MagnetKnopf
                 href="#kontakt"
-                className="bastel-knopf filz rounded-full bg-wolle px-7 py-3.5 font-bold text-schrift [--kante:#cdbb9c]"
+                className={`bastel-knopf filz rounded-full px-7 py-3.5 font-bold [--kante:#cdbb9c] ${
+                  glas && dunkel ? "border border-white/25 text-hell" : "bg-wolle text-schrift"
+                }`}
               >
                 Kontakt
               </MagnetKnopf>
@@ -185,13 +201,13 @@ export function Hero() {
 
   let index = 0;
 
-  const zeile = (wort: string, bunt: boolean, x: MotionValue<string>) => (
-    <motion.span className="block whitespace-nowrap" style={ruhig ? undefined : { x }}>
+  const zeile = (wort: string, bunt: boolean, x: MotionValue<string>, klasse = "") => (
+    <motion.span className={`block whitespace-nowrap ${klasse}`} style={ruhig ? undefined : { x }}>
       {wort.split("").map((buchstabe, i) => (
         <span
           key={i}
           className="buchstabe"
-          style={{ "--i": index++, color: bunt ? buchstabenFarbe(i, wort.length) : undefined } as CSSProperties}
+          style={{ "--i": index++, color: bunt ? buchstabenFarbe(i, wort.length, wort) : undefined } as CSSProperties}
         >
           {/* Ein normales Leerzeichen hätte in einem inline-block keine Breite */}
           {buchstabe === " " ? " " : buchstabe}
@@ -207,6 +223,75 @@ export function Hero() {
 
       <div className={ruhig ? "" : "sticky top-0 h-svh overflow-hidden"}>
         {/* Startbildschirm */}
+        {THEMA === "glas" ? (
+          <motion.div
+            style={ruhig ? undefined : { opacity: startDeckkraft, visibility: startSichtbar }}
+            className="relative flex h-svh flex-col justify-end px-4 pt-28 pb-8 md:justify-center md:px-8 md:pb-10"
+          >
+            <div className="absolute inset-x-0 top-20 px-4 md:top-24 md:px-8">
+              <div className="mx-auto flex max-w-7xl items-start justify-between">
+              <p className="inline-flex items-center gap-2 rounded-full bg-wolle/80 px-3.5 py-1.5 text-xs font-medium tracking-[0.12em] uppercase backdrop-blur">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-gelb opacity-75 motion-reduce:animate-none" />
+                  <span className="relative inline-flex size-2 rounded-full bg-gelb" />
+                </span>
+                {profil.status}
+              </p>
+              <p className="hidden text-right text-xs leading-relaxed font-medium tracking-[0.12em] text-leise uppercase md:block">
+                {WELT_TEXTE[THEMA].maus}
+                <br />
+                {WELT_TEXTE[THEMA].klick}
+              </p>
+              </div>
+            </div>
+
+            <div className="mx-auto w-full max-w-7xl">
+              <div className="max-w-[40rem] md:max-w-[min(46rem,52vw)]">
+                <h1>
+                  <span className="mb-6 block text-sm font-medium tracking-[0.14em] text-leise uppercase">
+                    {profil.name} · {profil.rolle} in {profil.ort}
+                  </span>
+                  <span className="sr-only">: </span>
+                  <span className="block font-display text-[clamp(3.6rem,8.4vw,8.5rem)] leading-[0.9] tracking-[-0.02em]">
+                    <span className="sr-only">{SPRUCH.join(" ")}</span>
+                    <span aria-hidden>
+                      {zeile(SPRUCH[0], false, zeile1X)}
+                      {zeile(SPRUCH[1], true, zeile2X, "italic")}
+                    </span>
+                  </span>
+                </h1>
+                <p className="mt-7 max-w-md text-lg leading-relaxed text-schrift/75">
+                  Ich baue schnelle, auffällige Websites. Seit 2023 für echte Kunden rund um Zürich, jetzt suche ich mein
+                  nächstes Team.
+                </p>
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <MagnetKnopf
+                    href="#projekte"
+                    className="bastel-knopf rounded-full bg-gelb px-7 py-3.5 font-semibold text-tinte"
+                  >
+                    Projekte ansehen
+                  </MagnetKnopf>
+                  <MagnetKnopf
+                    href="#kontakt"
+                    className="rounded-full border border-schrift/20 px-7 py-3.5 font-semibold text-schrift transition-colors hover:border-schrift/60"
+                  >
+                    Kontakt
+                  </MagnetKnopf>
+                </div>
+                <p className="mt-8 text-xs font-medium tracking-[0.14em] text-leise uppercase">
+                  {profil.stack} · TypeScript
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-10 text-xs font-medium tracking-[0.14em] text-leise uppercase md:absolute md:inset-x-0 md:bottom-10 md:mt-0 md:px-8">
+              <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
+                <span className="hidden sm:inline">{WELT_TEXTE[THEMA].signatur}</span>
+                <span className="ml-auto">Runterscrollen ↓</span>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
         <motion.div
           style={ruhig ? undefined : { opacity: startDeckkraft, visibility: startSichtbar }}
           className="relative flex h-svh flex-col justify-end px-4 pt-28 pb-8 md:px-8 md:pb-10"
@@ -286,6 +371,7 @@ export function Hero() {
             <span className="ml-auto">Runterscrollen ↓</span>
           </div>
         </motion.div>
+        )}
 
         {/* Stapel aus Filz-Patches */}
         <div

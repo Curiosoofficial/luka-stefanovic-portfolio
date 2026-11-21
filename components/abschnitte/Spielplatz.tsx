@@ -45,7 +45,7 @@ function Kachel({ eintrag }: { eintrag: SpielplatzEintrag }) {
         aria-hidden
         className="pointer-events-none absolute inset-x-4 top-6 -bottom-4 rounded-3xl shadow-[0_26px_44px_-18px_rgb(20_10_40_/_0.65)]"
       />
-      {!code && (
+      {THEMA === "strick" && (
         <KartenKoerper
           farbe={eintrag.farbe}
           radius={24}

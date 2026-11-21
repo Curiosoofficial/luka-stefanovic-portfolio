@@ -19,12 +19,27 @@ export function Knopf({
   className?: string;
 }) {
   const g = groesse;
+  // Wer den Knopf absolut platziert, gibt «absolute» mit; sonst ist er «relative» (für die Löcher und den Faden darin)
+  const lage = /\b(absolute|fixed)\b/.test(className) ? "" : "relative";
+
+  if (THEMA === "glas") {
+    // Schlicht: oranger Punkt mit feinem Ring, immer in der Akzentfarbe (die 10 % der 60-30-10-Regel)
+    return (
+      <span
+        aria-hidden
+        className={`${lage} inline-grid shrink-0 place-items-center rounded-full ${className}`}
+        style={{ width: g, height: g, border: "1.5px solid rgb(252 163 17 / 0.45)" }}
+      >
+        <span className="rounded-full" style={{ width: g * 0.4, height: g * 0.4, background: "#FCA311" }} />
+      </span>
+    );
+  }
 
   if (THEMA === "code") {
     return (
       <span
         aria-hidden
-        className={`relative inline-grid shrink-0 place-items-center rounded-full ${className}`}
+        className={`${lage} inline-grid shrink-0 place-items-center rounded-full ${className}`}
         style={{
           width: g,
           height: g,
@@ -58,7 +73,7 @@ export function Knopf({
   return (
     <span
       aria-hidden
-      className={`relative inline-block shrink-0 rounded-full ${className}`}
+      className={`${lage} inline-block shrink-0 rounded-full ${className}`}
       style={{
         width: g,
         height: g,

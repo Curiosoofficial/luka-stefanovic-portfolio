@@ -3,9 +3,11 @@ import { THEMA } from "@/components/welt/thema";
 
 /** In der dunklen Code-Welt ist der Fuss dunkel mit heller Schrift, in der Strickwelt hell wie Packpapier */
 const STIL =
-  THEMA === "code"
-    ? { fuss: "border-white/10 bg-[#05060c]/85", schrift: "text-[#8d97bd]", link: "hover:text-gelb" }
-    : { fuss: "border-schrift/10 bg-grund/60", schrift: "text-leise", link: "hover:text-akzent" };
+  THEMA === "glas"
+    ? { fuss: "border-transparent bg-tinte", schrift: "text-hell/70", link: "hover:text-gelb" }
+    : THEMA === "code"
+      ? { fuss: "border-white/10 bg-[#05060c]/85", schrift: "text-[#8d97bd]", link: "hover:text-gelb" }
+      : { fuss: "border-schrift/10 bg-grund/60", schrift: "text-leise", link: "hover:text-akzent" };
 
 export function Footer() {
   return (

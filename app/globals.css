@@ -210,6 +210,151 @@ html[data-thema="code"] .buchstabe {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/*
+ * Glas-Welt (siehe components/welt/thema.ts): klar und ruhig nach der 60-30-10-Regel.
+ *   60 % Off-White (#F3F2EE): Hintergrund und Flächen
+ *   30 % Tintenblau (#14213D): Schrift, dunkle Karten und Abschnitte
+ *   10 % Orange (#FCA311): Knöpfe, Hervorhebungen, kleine Akzente
+ * Alle bunten Garnfarben werden auf diese drei Farben umgedeutet, damit nichts aus der Reihe tanzt.
+ */
+html[data-thema="glas"] {
+  --color-grund: #f3f2ee;
+  --color-grund-2: #e8e6df;
+  --color-wolle: #fbfaf7;
+  --color-schrift: #14213d;
+  --color-leise: #5b6478;
+  --color-akzent: #b86e00;
+  --color-tinte: #14213d;
+  --color-hell: #f3f2ee;
+  --color-karton: #e8e6df;
+  --color-pink: #14213d;
+  --color-orange: #fca311;
+  --color-gelb: #fca311;
+  --color-gruen: #14213d;
+  --color-blau: #14213d;
+  --color-lila: #2b3a67;
+  color-scheme: light;
+}
+
+html[data-thema="glas"],
+html[data-thema="glas"] body {
+  background: #f3f2ee;
+}
+
+html[data-thema="glas"] body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+html[data-thema="glas"] ::selection {
+  background: #fca311;
+  color: #14213d;
+}
+
+html[data-thema="glas"] body::after {
+  display: none;
+}
+
+/* Grosse Titel in einer eleganten Serifenschrift (gibt es nur in einer Stärke) */
+html[data-thema="glas"] .font-display {
+  font-family: var(--font-instrument), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+/* Statt Handschrift: kleine, ruhige Labels in Grossbuchstaben */
+html[data-thema="glas"] .font-hand {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+html[data-thema="glas"] .font-mono {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+html[data-thema="glas"] main :where(p, dd, li, h2, h3) {
+  text-shadow: none;
+}
+
+/* Klar und gerade: keine schiefen Etiketten, keine Nähte, kein Klebeband, keine Filz-Fusseln */
+html[data-thema="glas"] [class*="rotate-"] {
+  rotate: none;
+}
+
+html[data-thema="glas"] .border-dashed {
+  border-style: solid;
+}
+
+html[data-thema="glas"] .outline-dashed {
+  outline-style: solid;
+  outline-width: 1px;
+  outline-color: rgb(20 33 61 / 0.18);
+}
+
+html[data-thema="glas"] .filz {
+  background-image: none;
+}
+
+html[data-thema="glas"] .naht::before,
+html[data-thema="glas"] .klebeband {
+  display: none;
+}
+
+html[data-thema="glas"] .wellpappe {
+  background-color: #fbfaf7;
+  background-image: none;
+  outline: 1px solid rgb(20 33 61 / 0.08);
+  outline-offset: -1px;
+}
+
+html[data-thema="glas"] [class*="bg-wolle"] {
+  outline: 1px solid rgb(20 33 61 / 0.07);
+  outline-offset: -1px;
+}
+
+html[data-thema="glas"] .stoff-schatten {
+  box-shadow:
+    0 1px 0 rgb(20 33 61 / 0.04),
+    0 24px 48px -28px rgb(20 33 61 / 0.35);
+}
+
+html[data-thema="glas"] .bastel-knopf {
+  box-shadow: 0 10px 24px -14px rgb(20 33 61 / 0.45);
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+}
+
+html[data-thema="glas"] .bastel-knopf:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px -14px rgb(20 33 61 / 0.55);
+}
+
+html[data-thema="glas"] .aufkleber {
+  -webkit-text-stroke: 0;
+}
+
+/* Buchstaben gleiten weich nach oben, statt zu hüpfen */
+@keyframes buchstabe-glas {
+  from {
+    transform: translateY(0.25em);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+html[data-thema="glas"] .buchstabe {
+  animation-name: buchstabe-glas;
+  animation-duration: 0.9s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Niedrige Desktop-Bildschirme (z. B. Laptop mit 768 px Höhe): kompakteres Layout */
 @custom-variant flach (@media (min-width: 768px) and (max-height: 820px));
 

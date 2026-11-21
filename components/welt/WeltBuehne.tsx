@@ -6,9 +6,15 @@ import { THEMA } from "./thema";
 
 // Three.js ist gross. Mit ssr: false landet es nicht im Server-HTML und blockiert den Text nicht.
 // Geladen wird nur die Welt, die gerade eingestellt ist (siehe thema.ts).
-const Szene = dynamic(() => (THEMA === "code" ? import("@/components/code/CodeSzene") : import("./WeltSzene")), {
-  ssr: false,
-});
+const Szene = dynamic(
+  () =>
+    THEMA === "glas"
+      ? import("@/components/glas/GlasSzene")
+      : THEMA === "code"
+        ? import("@/components/code/CodeSzene")
+        : import("./WeltSzene"),
+  { ssr: false },
+);
 
 /**
  * Fixe Bühne hinter der ganzen Seite.
