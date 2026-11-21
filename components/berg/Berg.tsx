@@ -288,7 +288,9 @@ export function Kamerafahrt({
     // Unterwegs (zwischen Startbild und Schlussbild) braucht es den grossen Abstand nicht mehr:
     // Die Kamera rückt näher heran, damit die Gondeln in der Bildmitte gross genug zum Lesen sind
     const unterwegs = stufe(s.p, 0.03, 0.14) * (1 - stufe(s.p, 0.9, 0.99));
-    const zurueck = Math.max(0, 1 - kamera.aspect) * 26 * (1 - 0.62 * unterwegs);
+    // Schmaler als 16:9 im Querformat (Tablet, schmales Fenster): ein Stück zurück, damit die Schilder links und rechts ganz im Bild sind
+    const schmal = kamera.aspect >= 1 ? Math.max(0, 1.78 - kamera.aspect) * 16 : 0;
+    const zurueck = (Math.max(0, 1 - kamera.aspect) * 26 + schmal) * (1 - 0.62 * unterwegs);
     h.pos.addScaledVector(BLICK, -zurueck);
 
     // Maus: Die Kamera weicht ein wenig zur Seite und nach oben aus, sie dreht sich nicht
