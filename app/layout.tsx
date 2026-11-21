@@ -72,7 +72,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: THEMA === "code" ? "#05060c" : THEMA === "glas" ? "#f3f2ee" : "#f4e8d4",
+  themeColor: THEMA === "code" ? "#05060c" : THEMA === "glas" ? "#e6e0d4" : "#f4e8d4",
   colorScheme: THEMA === "code" ? "dark" : "light",
 };
 

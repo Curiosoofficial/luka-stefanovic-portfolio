@@ -34,7 +34,7 @@ function Kachel({ eintrag, index }: { eintrag: SpielplatzEintrag; index: number 
   const dunkel = glas && index === 1;
   // Glas-Welt: helle Kacheln, die mittlere tintenblau; Code-Welt: dunkles Glas mit Lichtschein
   const flaeche = glas
-    ? { backgroundColor: dunkel ? "#14213D" : "#FBFAF7", color: dunkel ? "#F3F2EE" : "#14213D" }
+    ? { backgroundColor: dunkel ? "#14213D" : "#F5F1E8", color: dunkel ? "#F5F1E8" : "#14213D" }
     : code
     ? {
         background: `radial-gradient(120% 110% at 0% 0%, color-mix(in oklab, ${eintrag.farbe} 40%, transparent) 0%, transparent 60%), linear-gradient(170deg, #121a33 0%, #0a0e1d 100%)`,

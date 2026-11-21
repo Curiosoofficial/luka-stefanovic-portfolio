@@ -42,7 +42,7 @@ function Cover({ projekt }: { projekt: Projekt }) {
   const hell = !code && !glas && istHell(projekt.farbe);
   // Glas-Welt: alle Cover tintenblau (die 30 %), Code-Welt: dunkles Glas mit Lichtschein in der Projektfarbe
   const flaeche = glas
-    ? { backgroundColor: "#14213D", color: "#F3F2EE" }
+    ? { backgroundColor: "#14213D", color: "#F5F1E8" }
     : code
     ? {
         background: `radial-gradient(130% 120% at 100% 0%, color-mix(in oklab, ${projekt.farbe} 75%, transparent) 0%, transparent 62%), linear-gradient(160deg, color-mix(in oklab, ${projekt.farbe} 22%, #0b1022) 0%, #090d1b 100%)`,
@@ -59,7 +59,7 @@ function Cover({ projekt }: { projekt: Projekt }) {
       <span
         aria-hidden
         className="absolute -right-14 -bottom-20 size-60 rounded-full border-[22px] transition-transform duration-700 group-hover:scale-110"
-        style={{ borderColor: glas ? "rgb(252 163 17 / 0.22)" : hell ? "rgba(11,11,20,0.12)" : "rgba(245,243,255,0.16)" }}
+        style={{ borderColor: glas ? "rgb(245 241 232 / 0.07)" : hell ? "rgba(11,11,20,0.12)" : "rgba(245,243,255,0.16)" }}
       />
       <span
         aria-hidden
@@ -208,7 +208,8 @@ function ProjekteBand() {
       id="projekte"
       data-partikel="3"
       ref={huelle}
-      className="relative py-28 md:py-0"
+      // Glas-Welt: Die Projekte liegen auf einem tintenblauen Band, das bringt die 30 % Tinte ins Spiel
+      className={`relative py-28 md:py-0 ${THEMA === "glas" ? "bg-tinte" : ""}`}
       style={distanz > 0 ? { height: `calc(100svh + ${distanz}px)` } : undefined}
     >
       <div className="md:sticky md:top-0 md:flex md:h-svh md:flex-col md:justify-center md:overflow-hidden md:pt-16">

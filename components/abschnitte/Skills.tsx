@@ -31,8 +31,8 @@ function Absperrband({ band, fortschritt, ruhig }: { band: Band; fortschritt: Mo
   const code = THEMA === "code";
   // Glas-Welt: gerade, ruhige Bänder in den drei Farben der 60-30-10-Regel
   const glasStil = [
-    { backgroundColor: "#14213D", color: "#F3F2EE" },
-    { backgroundColor: "#FBFAF7", color: "#14213D", borderColor: "rgb(20 33 61 / 0.12)" },
+    { backgroundColor: "#14213D", color: "#F5F1E8" },
+    { backgroundColor: "#F5F1E8", color: "#14213D", borderColor: "rgb(20 33 61 / 0.12)" },
     { backgroundColor: "#FCA311", color: "#14213D" },
   ][band.stufe];
   return (

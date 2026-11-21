@@ -15,7 +15,7 @@ import { weltStore } from "@/components/welt/zustand";
  * Darum stehen hinter dem Glasring bewusst farbige Körper: Ohne etwas dahinter wäre Glas auf Weiss unsichtbar.
  */
 
-export const GRUND = "#F3F2EE";
+export const GRUND = "#E6E0D4";
 const TINTE = "#14213D";
 const ORANGE = "#FCA311";
 

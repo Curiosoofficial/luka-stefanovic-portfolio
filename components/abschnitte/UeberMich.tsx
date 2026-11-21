@@ -78,7 +78,7 @@ function KachelHuelle({
   const hell = !code && zahl.textFarbe !== "#FFF8EE";
   // Glas-Welt: helle Kacheln, grosse Zahl in Tintenblau; Code-Welt: dunkles Glas, die Zahl leuchtet
   const flaeche = glas
-    ? { backgroundColor: "#FBFAF7", color: "#14213D" }
+    ? { backgroundColor: "#F5F1E8", color: "#14213D" }
     : code
     ? {
         background: `radial-gradient(120% 120% at 100% 100%, color-mix(in oklab, ${zahl.farbe} 32%, transparent) 0%, transparent 60%), linear-gradient(165deg, #121a33 0%, #0a0e1d 100%)`,

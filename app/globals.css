@@ -212,21 +212,21 @@ html[data-thema="code"] .buchstabe {
 
 /*
  * Glas-Welt (siehe components/welt/thema.ts): klar und ruhig nach der 60-30-10-Regel.
- *   60 % Off-White (#F3F2EE): Hintergrund und Flächen
+ *   60 % warmer Steinton (#E6E0D4): Hintergrund, Karten etwas heller (#F5F1E8)
  *   30 % Tintenblau (#14213D): Schrift, dunkle Karten und Abschnitte
  *   10 % Orange (#FCA311): Knöpfe, Hervorhebungen, kleine Akzente
  * Alle bunten Garnfarben werden auf diese drei Farben umgedeutet, damit nichts aus der Reihe tanzt.
  */
 html[data-thema="glas"] {
-  --color-grund: #f3f2ee;
-  --color-grund-2: #e8e6df;
-  --color-wolle: #fbfaf7;
+  --color-grund: #e6e0d4;
+  --color-grund-2: #dcd5c7;
+  --color-wolle: #f5f1e8;
   --color-schrift: #14213d;
   --color-leise: #5b6478;
   --color-akzent: #b86e00;
   --color-tinte: #14213d;
-  --color-hell: #f3f2ee;
-  --color-karton: #e8e6df;
+  --color-hell: #f5f1e8;
+  --color-karton: #dcd5c7;
   --color-pink: #14213d;
   --color-orange: #fca311;
   --color-gelb: #fca311;
@@ -238,7 +238,7 @@ html[data-thema="glas"] {
 
 html[data-thema="glas"],
 html[data-thema="glas"] body {
-  background: #f3f2ee;
+  background: #e6e0d4;
 }
 
 html[data-thema="glas"] body {
@@ -304,7 +304,7 @@ html[data-thema="glas"] .klebeband {
 }
 
 html[data-thema="glas"] .wellpappe {
-  background-color: #fbfaf7;
+  background-color: #f5f1e8;
   background-image: none;
   outline: 1px solid rgb(20 33 61 / 0.08);
   outline-offset: -1px;

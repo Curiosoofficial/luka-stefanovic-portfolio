@@ -95,7 +95,7 @@ function FilzPatch({
   // Glas-Welt: abwechselnd helle und tintenblaue Karten (60-30-10), Code-Welt: dunkles Glas mit Lichtschein
   const dunkel = i % 2 === 1;
   const flaeche = glas
-    ? { backgroundColor: dunkel ? "#14213D" : "#FBFAF7", color: dunkel ? "#F3F2EE" : "#14213D" }
+    ? { backgroundColor: dunkel ? "#14213D" : "#F5F1E8", color: dunkel ? "#F5F1E8" : "#14213D" }
     : code
       ? {
           background: `radial-gradient(110% 120% at 100% 0%, color-mix(in oklab, ${karte.farbe} 45%, transparent) 0%, transparent 55%), linear-gradient(165deg, #131b36 0%, #0a0e1d 100%)`,
