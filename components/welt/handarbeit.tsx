@@ -308,7 +308,7 @@ const FLAUM_STUFEN = [0.3, 0.44, 0.56, 0.67, 0.77, 0.86];
  * Wolke aus Watte: mehrere Kugeln, darüber sechs Flaum-Hüllen (siehe flaumHuelle),
  * die den Rand weich und faserig machen.
  */
-export function Watte({ kugeln, farbe = "#FBF8F1", ...lage }: Lage & { kugeln: Kugel[]; farbe?: string }) {
+export function Watte({ kugeln, farbe = "#FBF8F1", schatten = true, ...lage }: Lage & { kugeln: Kugel[]; farbe?: string; schatten?: boolean }) {
   const { basis, huellen } = useMemo(() => {
     const basis = kugelHaufen(kugeln, (r) => new THREE.SphereGeometry(r, 40, 28), 0.85);
     const pos = basis.attributes.position;
@@ -333,7 +333,7 @@ export function Watte({ kugeln, farbe = "#FBF8F1", ...lage }: Lage & { kugeln: K
   );
   return (
     <group {...lage}>
-      <mesh geometry={basis} material={filzKugel(farbe, 4)} castShadow receiveShadow />
+      <mesh geometry={basis} material={filzKugel(farbe, 4)} castShadow={schatten} receiveShadow />
       {huellen.map((h, i) => (
         <mesh key={i} geometry={h} material={flaumHuelle(farbe, FLAUM_STUFEN[i])} />
       ))}

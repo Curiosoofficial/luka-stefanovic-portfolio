@@ -2,18 +2,21 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
+import { Ladeanzeige } from "@/components/berg/Ladeanzeige";
 import { THEMA } from "./thema";
 
 // Three.js ist gross. Mit ssr: false landet es nicht im Server-HTML und blockiert den Text nicht.
 // Geladen wird nur die Welt, die gerade eingestellt ist (siehe thema.ts).
 const Szene = dynamic(
   () =>
-    THEMA === "glas"
+    THEMA === "berg"
+      ? import("@/components/berg/BergSzene")
+      : THEMA === "glas"
       ? import("@/components/glas/GlasSzene")
       : THEMA === "code"
         ? import("@/components/code/CodeSzene")
         : import("./WeltSzene"),
-  { ssr: false },
+  { ssr: false, loading: () => (THEMA === "berg" ? <Ladeanzeige /> : null) },
 );
 
 /**
@@ -37,7 +40,7 @@ export function WeltBuehne() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
-      {laden && <Szene />}
+      {laden ? <Szene /> : THEMA === "berg" ? <Ladeanzeige /> : null}
     </div>
   );
 }

@@ -355,6 +355,21 @@ html[data-thema="glas"] .buchstabe {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Berg-Welt: reine 3D-Seite, der Himmel ist die Hintergrundfarbe (sichtbar, bis die Welt geladen ist) */
+html[data-thema="berg"],
+html[data-thema="berg"] body {
+  background: #cfe2f1;
+}
+
+/* Platz für den Rollbalken bleibt reserviert: Geht ein Infofenster auf, springt die Welt nicht zur Seite */
+html[data-thema="berg"] {
+  scrollbar-gutter: stable;
+}
+
+html[data-thema="berg"] body::after {
+  display: none;
+}
+
 /* Niedrige Desktop-Bildschirme (z. B. Laptop mit 768 px Höhe): kompakteres Layout */
 @custom-variant flach (@media (min-width: 768px) and (max-height: 820px));
 

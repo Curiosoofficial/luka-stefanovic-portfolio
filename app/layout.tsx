@@ -49,7 +49,9 @@ const seitenUrl =
 
 const titel = `${profil.name} · ${profil.rolle} (${profil.stack}) in ${profil.ort}`;
 const beschreibung =
-  THEMA === "glas"
+  THEMA === "berg"
+    ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Ein gestrickter Schweizer Berg in 3D, vom Gipfel bis ins Tal."
+    : THEMA === "glas"
     ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Klar gestaltet, mit einer Glasskulptur live in 3D."
     : THEMA === "code"
     ? "Portfolio von Luka Stefanovic: Websites für Schweizer Betriebe, React und Next.js. Beim Scrollen wird aus Code eine fertige Website, live in 3D."
@@ -72,7 +74,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: THEMA === "code" ? "#05060c" : THEMA === "glas" ? "#e6e0d4" : "#f4e8d4",
+  themeColor: THEMA === "code" ? "#05060c" : THEMA === "glas" ? "#e6e0d4" : THEMA === "berg" ? "#cfe2f1" : "#f4e8d4",
   colorScheme: THEMA === "code" ? "dark" : "light",
 };
 

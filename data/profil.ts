@@ -118,3 +118,9 @@ export const spielplatz: SpielplatzEintrag[] = [
     aktion: "sound",
   },
 ];
+
+/** Sind E-Mail und LinkedIn schon echt eingetragen? Platzhalter werden auf der Seite nicht angezeigt. */
+export const kontaktEcht = {
+  email: !profil.email.includes("example"),
+  linkedin: profil.linkedin.replace(/\/$/, "") !== "https://www.linkedin.com",
+};

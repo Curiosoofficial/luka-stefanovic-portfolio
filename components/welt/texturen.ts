@@ -32,7 +32,7 @@ function datenTextur(daten: Uint8Array, breite: number, hoehe: number, farbig: b
   t.magFilter = THREE.LinearFilter;
   t.minFilter = THREE.LinearMipmapLinearFilter;
   t.generateMipmaps = true;
-  t.anisotropy = 8;
+  t.anisotropy = 16;
   t.colorSpace = farbig ? THREE.SRGBColorSpace : THREE.NoColorSpace;
   t.needsUpdate = true;
   return t;
@@ -113,61 +113,90 @@ function streckenAbstand(px: number, py: number, ax: number, ay: number, bx: num
 }
 
 /**
- * Strick (glatt rechts): Jede Masche ist ein «V» aus zwei Schlaufen.
- * Jede Schlaufe ist ein runder Garnwulst (Höhe wie ein Halbzylinder) mit schräg gedrehten Einzelfäden.
- * Zwischen den Schlaufen liegen dunkle Ritzen.
+ * Grobstrick (glatt rechts), wie ein dicker Wollpullover: Jede Masche ist ein «V» aus zwei Schlaufen.
+ *
+ * - Jede Schlaufe ist ein runder, dicker Garnwulst, leicht gebogen, aus verdrehten Einzelfäden (schräge Rillen).
+ * - Die Schlaufen greifen ineinander und über den Rand der eigenen Masche hinaus: Es gibt keine geraden Fugen,
+ *   nur dunkle Ritzen dort, wo wirklich kein Garn liegt.
+ * - Jede Masche sitzt ein wenig anders und ist etwas heller oder dunkler: handgestrickt, nicht gedruckt.
+ * - Darüber liegen feine, abstehende Härchen: Das macht aus «Muster» erst Wolle.
+ *
+ * Eine Kachel hat 6 Maschen in der Breite und 8 Reihen in der Höhe (Maschen sind breiter als hoch).
  */
 export function strickKachel(): Kachel {
-  const b = 512;
-  const spalten = 8;
-  const zeilen = 9;
+  const b = 1024;
+  const spalten = 6;
+  const zeilen = 8;
   const zb = b / spalten;
   const zh = b / zeilen;
+  // Eine Zelle ist 1 breit und «hoch» hoch (in Maschenbreiten gemessen)
+  const hoch = zh / zb;
   const z = zufall(5);
-  const tonung = Array.from({ length: spalten * zeilen }, () => 0.94 + z() * 0.08);
-  const fussel = rauschen(b, b, 64, z);
+  const maschen = Array.from({ length: spalten * zeilen }, () => ({
+    ton: 0.92 + z() * 0.12,
+    dx: (z() - 0.5) * 0.07,
+    dy: (z() - 0.5) * 0.05,
+    dick: 0.93 + z() * 0.14,
+  }));
+  const masche = (cx: number, cy: number) => maschen[(((cy % zeilen) + zeilen) % zeilen) * spalten + (((cx % spalten) + spalten) % spalten)];
+  const haare = faserFeld(b, 3200, z, [14, 52], 0.9);
+  const wolken = rauschen(b, b, 5, z);
   const hoehe = new Float32Array(b * b);
   const hell = new Float32Array(b * b);
-  const radius = 0.21;
+  const radius = 0.25;
 
   for (let y = 0; y < b; y++) {
     for (let x = 0; x < b; x++) {
-      const cx = Math.floor(x / zb);
+      const px = x / zb;
+      const py = (y / zh) * hoch;
+      const cx = Math.floor(px);
       const cy = Math.floor(y / zh);
       let beste = 0;
       let besteTon = 1;
-      // Die Schlaufen ragen in die Nachbarzeile, darum auch die Zelle darunter prüfen
-      for (const oy of [0, -1]) {
-        const zelleY = cy + oy;
-        const u = x / zb - cx;
-        const v = y / zh - zelleY;
-        for (const seite of [-1, 1]) {
-          const ax = 0.5;
-          const ay = 0.08;
-          const bx = 0.5 + seite * 0.36;
-          const by = 1.2;
-          // Zellen sind höher als breit: x stauchen, damit die Schlaufen rund bleiben
-          const { d, t } = streckenAbstand(u, v * (zh / zb), ax, ay * (zh / zb), bx, by * (zh / zb));
-          if (d < radius) {
-            const wulst = Math.sqrt(1 - (d / radius) ** 2);
-            // Gedrehte Einzelfäden: schräge Rillen entlang der Schlaufe
-            const drall = 0.82 + 0.18 * Math.cos((t * 7 + (d / radius) * seite * 1.6) * Math.PI * 2);
-            const wert = wulst * drall * (oy === 0 ? 1 : 0.97);
+      // Schlaufen ragen in die Nachbarn hinein: eigene Masche, die Reihen darüber und darunter, links und rechts
+      for (let oy = -1; oy <= 1; oy++) {
+        for (let ox = -1; ox <= 1; ox++) {
+          const m = masche(cx + ox, cy + oy);
+          const ux = px - (cx + ox) - m.dx;
+          const uy = py - (cy + oy) * hoch - m.dy;
+          // Schnelltest: zu weit weg von dieser Masche
+          if (ux < -0.25 || ux > 1.25 || uy < -0.4 || uy > hoch * 1.6) continue;
+          const r = radius * m.dick;
+          for (const seite of [-1, 1]) {
+            // Nur die Schlaufe, die bis zu diesem Nachbarn reicht
+            if (ox === -1 && seite === -1) continue;
+            if (ox === 1 && seite === 1) continue;
+            // Mittellinie der Schlaufe: unten in der Mitte, dann im Bogen nach aussen oben (zwei Teilstrecken)
+            const ax = 0.5;
+            const ay = -0.08 * hoch;
+            const mx = 0.5 + seite * 0.3;
+            const my = 0.52 * hoch;
+            const bx = 0.5 + seite * 0.4;
+            const by = 1.22 * hoch;
+            const eins = streckenAbstand(ux, uy, ax, ay, mx, my);
+            const zwei = streckenAbstand(ux, uy, mx, my, bx, by);
+            const d = Math.min(eins.d, zwei.d);
+            if (d >= r) continue;
+            const wulst = Math.sqrt(1 - (d / r) ** 2);
+            // Verdrehte Einzelfäden: schräge Rillen, auf der linken Schlaufe andersherum
+            const rille = 0.5 + 0.5 * Math.cos((ux + seite * uy * 0.95) * 7.5 * Math.PI * 2);
+            // Die obere Reihe liegt an der Kreuzung leicht über der unteren
+            const wert = wulst * (0.84 + 0.16 * rille) * (1 + oy * 0.03);
             if (wert > beste) {
               beste = wert;
-              besteTon = tonung[((zelleY + zeilen) % zeilen) * spalten + (cx % spalten)];
+              besteTon = m.ton;
             }
           }
         }
       }
       const i = y * b + x;
-      const flaum = (fussel[i] - 0.5) * 0.08;
-      hoehe[i] = beste + flaum;
-      // Ritzen dunkel (Umgebungsverdeckung), Erhebungen hell
-      hell[i] = (0.38 + 0.62 * Math.pow(Math.max(0, beste), 0.55)) * besteTon + flaum;
+      const haar = haare[i] - 0.5;
+      hoehe[i] = Math.min(1.1, beste) + haar * 0.07;
+      // Ritzen dunkel (Umgebungsverdeckung), Wülste hell, Härchen als helle Schlieren
+      hell[i] = (0.34 + 0.66 * Math.pow(Math.max(0, Math.min(1, beste)), 0.5)) * besteTon * (0.95 + wolken[i] * 0.1) + haar * 0.2;
     }
   }
-  return { farbe: grauTextur(hell, b, b), normale: normalMap(hoehe, b, b, 3.2) };
+  return { farbe: grauTextur(hell, b, b), normale: normalMap(hoehe, b, b, 9) };
 }
 
 /** Zeichnet Fasern auf ein Canvas und liest die Helligkeit als Höhenfeld aus */

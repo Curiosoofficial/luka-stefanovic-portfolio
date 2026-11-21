@@ -1,4 +1,6 @@
 import { Footer } from "@/components/abschnitte/Footer";
+import { BergSeite } from "@/components/berg/BergSeite";
+import { THEMA } from "@/components/welt/thema";
 import { Hero } from "@/components/abschnitte/Hero";
 import { Kontakt } from "@/components/abschnitte/Kontakt";
 import { Navigation } from "@/components/abschnitte/Navigation";
@@ -12,6 +14,8 @@ import { UeberMich } from "@/components/abschnitte/UeberMich";
  * Daran erkennt die Partikel-Szene, welche Form gerade dran ist.
  */
 export default function Seite() {
+  // Berg-Welt: Die ganze Seite ist die 3D-Reise, es gibt keine sichtbaren 2D-Abschnitte
+  if (THEMA === "berg") return <BergSeite />;
   return (
     <>
       <Navigation />
