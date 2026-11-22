@@ -476,6 +476,36 @@ export function hoehe(x: number, z: number) {
   return h;
 }
 
+/**
+ * Höhe des gezeichneten Geländes an der Stelle (x, z). Gezeichnet wird das Gelände als Netz aus Dreiecken
+ * mit der Maschenweite «schritt»: Zwischen den Ecken ist es eben, die Formel «hoehe» dagegen gewölbt.
+ * Was hauchdünn auf dem Boden liegt (das Wasser im Bach), muss sich darum nach dem Netz richten.
+ * Die Aufteilung in Zellen und Dreiecke ist dieselbe wie in gelaendeGeometrie (Berg.tsx).
+ */
+export function netzHoehe(x: number, z: number, schritt: number) {
+  const nx = Math.round((WELT.x1 - WELT.x0) / schritt);
+  const nz = Math.round((WELT.z1 - WELT.z0) / schritt);
+  const dx = (WELT.x1 - WELT.x0) / nx;
+  const dz = (WELT.z1 - WELT.z0) / nz;
+  const ix = Math.min(nx - 1, Math.max(0, Math.floor((x - WELT.x0) / dx)));
+  const iz = Math.min(nz - 1, Math.max(0, Math.floor((z - WELT.z0) / dz)));
+  const x0 = WELT.x0 + (ix / nx) * (WELT.x1 - WELT.x0);
+  const z0 = WELT.z0 + (iz / nz) * (WELT.z1 - WELT.z0);
+  const x1 = WELT.x0 + ((ix + 1) / nx) * (WELT.x1 - WELT.x0);
+  const z1 = WELT.z0 + ((iz + 1) / nz) * (WELT.z1 - WELT.z0);
+  const u = (x - x0) / (x1 - x0);
+  const v = (z - z0) / (z1 - z0);
+  const hb = hoehe(x1, z0);
+  const hc = hoehe(x0, z1);
+  // Jede Zelle besteht aus zwei Dreiecken, getrennt durch die Diagonale von der Ecke b zur Ecke c
+  if (u + v <= 1) {
+    const ha = hoehe(x0, z0);
+    return ha + u * (hb - ha) + v * (hc - ha);
+  }
+  const hd = hoehe(x1, z1);
+  return hd + (1 - u) * (hc - hd) + (1 - v) * (hb - hd);
+}
+
 /** Abstand zum nächsten Gebäude (für Bäume: nicht ins Haus wachsen) */
 export function abstandZuBauten(x: number, z: number) {
   let min = Infinity;

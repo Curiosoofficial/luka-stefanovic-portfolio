@@ -43,7 +43,6 @@ export const GARN = {
   weg: ["#BDA684", "#A68F6E"],
   wegSchnee: "#C6D5EA",
   gasse: ["#C9B592", "#B7A17B"],
-  bach: ["#2F8BDD", "#63B2F0"],
   hof: "#CDB98C",
   feldGelb: ["#EBC548", "#D8A93A"],
   feldBraun: ["#7B5A3A", "#8E6A44"],
@@ -67,7 +66,6 @@ const F = {
   weg: GARN.weg.map(rgb),
   wegSchnee: rgb(GARN.wegSchnee),
   gasse: GARN.gasse.map(rgb),
-  bach: GARN.bach.map(rgb),
   hof: rgb(GARN.hof),
   feldGelb: GARN.feldGelb.map(rgb),
   feldBraun: GARN.feldBraun.map(rgb),
@@ -126,8 +124,8 @@ function maschenFarbe(x: number, y: number, z: number, steil: number, spalte: nu
   // Gassen und Pfade zu den Häusern
   if (abstandZurGasse(x, z) < 0.62) return F.gasse[z1 > 0.5 ? 1 : 0];
 
-  // Das Bachbett: blaue Maschen unter dem fliessenden Garn
-  if (abstandZumBach(x, z) < 1) return F.bach[z1 > 0.7 ? 1 : 0];
+  // Das Bachufer: Auf Wiese und Waldboden säumen helle Kieselmaschen das Wasser (in der Felswand fliesst es über blanken Fels)
+  if (y < 53.5 && abstandZumBach(x, z) < 1.35) return F.ufer[z1 > 0.5 ? 1 : 0];
 
   // Schnee: oben überall, an den steilen Wänden nur in Schlieren, weiter unten auf den flachen Bändern im Fels
   const felswand = stufe(steil + w2 * 0.05, 0.36, 0.46);

@@ -8,7 +8,7 @@ import { filz, filzKugel, garn, holz } from "@/components/welt/materialien";
 import { type Lage } from "@/components/welt/teile";
 import { zufall } from "@/components/welt/texturen";
 import { ZEIT } from "./bauteile";
-import { BACH_KARTE, hoehe } from "./gelaende";
+import { BACH_KARTE, hoehe, netzHoehe } from "./gelaende";
 
 /**
  * Was den Berg lebendig macht: fliessendes Wasser, Rauch aus den Kaminen, Schneeflocken, eine wehende Fahne,
@@ -18,64 +18,145 @@ import { BACH_KARTE, hoehe } from "./gelaende";
 
 /* ------------------------------------------------------------------ Bach und Wasserfall */
 
-/** Der Bach: ein Band aus blauem Garn, das dem Gelände folgt. Das Garnmuster wandert talwärts: Das Wasser fliesst. */
-export function Bach() {
-  const { geometrie, laenge } = useMemo(() => {
-    const n = BACH_KARTE.length;
-    const pos = new Float32Array(n * 6);
-    const uv = new Float32Array(n * 4);
-    const mitte = BACH_KARTE.map(([x, z]) => new THREE.Vector3(x, hoehe(x, z), z));
-    const strecke = [0];
-    for (let i = 1; i < n; i++) strecke.push(strecke[i - 1] + mitte[i].distanceTo(mitte[i - 1]));
-    const gesamt = strecke[n - 1];
-    for (let i = 0; i < n; i++) {
-      const [ax, az] = BACH_KARTE[Math.max(0, i - 1)];
-      const [bx, bz] = BACH_KARTE[Math.min(n - 1, i + 1)];
-      const l = Math.hypot(bx - ax, bz - az) || 1;
-      // Quer zur Fliessrichtung, im Wasserfall schmaler
-      const breit = BACH_KARTE[i][1] < 50 ? 0.62 : 0.8;
-      const qx = (-(bz - az) / l) * breit;
-      const qz = ((bx - ax) / l) * breit;
-      const [x, z] = BACH_KARTE[i];
-      pos.set([x + qx, hoehe(x + qx, z + qz) + 0.2, z + qz, x - qx, hoehe(x - qx, z - qz) + 0.2, z - qz], i * 6);
-      uv.set([strecke[i] / gesamt, 0, strecke[i] / gesamt, 1], i * 4);
-    }
-    const index: number[] = [];
-    for (let i = 0; i < n - 1; i++) index.push(i * 2, i * 2 + 2, i * 2 + 1, i * 2 + 1, i * 2 + 2, i * 2 + 3);
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
-    g.setIndex(index);
-    g.computeVertexNormals();
-    return { geometrie: g, laenge: gesamt };
-  }, []);
-  useEffect(() => () => geometrie.dispose(), [geometrie]);
+type BachStelle = {
+  x: number;
+  z: number;
+  /** Richtung quer zum Wasser (waagrecht, Länge 1) */
+  qx: number;
+  qz: number;
+  /** Halbe Breite des Wassers */
+  breit: number;
+  /** Wie wild das Wasser hier ist: 0 ruhig, um 0.45 Wildbach im Wald, 1 Wasserfall in der Felswand */
+  wild: number;
+  /** Nach so vielen Sekunden kommt das Wasser von der Quelle hier an */
+  zeit: number;
+  /** Strecke von der Quelle bis hierher */
+  lauf: number;
+};
 
-  const wasser = useMemo(() => {
-    const m = (garn("#3A98EC", laenge, 1.3) as THREE.MeshPhysicalMaterial).clone();
-    // Eigene Kopien der Texturen: Nur dieses Garn soll wandern
-    m.map = m.map?.clone() ?? null;
-    m.normalMap = m.normalMap?.clone() ?? null;
-    m.side = THREE.DoubleSide;
-    m.sheen = 1;
-    m.sheenColor = new THREE.Color("#D2ECFF");
-    m.emissive = new THREE.Color("#1D6EC2");
-    m.emissiveIntensity = 0.18;
-    return m;
-  }, [laenge]);
-  useEffect(
-    () => () => {
-      wasser.map?.dispose();
-      wasser.normalMap?.dispose();
-      wasser.dispose();
-    },
-    [wasser],
-  );
-  useFrame(() => {
-    const versatz = -ZEIT.value * 0.55;
-    wasser.map?.offset.setX(versatz);
-    wasser.normalMap?.offset.setX(versatz);
+/**
+ * Der Lauf des Bachs, Stelle für Stelle. Wo es steil ist, fliesst das Wasser schneller und breitet sich über den Fels aus.
+ * Die Ankunftszeit braucht es, damit die Strömungslinien überall gleichmässig mit dem Wasser wandern,
+ * auch dort, wo es schneller oder langsamer wird.
+ */
+const BACH: BachStelle[] = (() => {
+  const n = BACH_KARTE.length;
+  const stellen: BachStelle[] = [];
+  let zeit = 0;
+  let lauf = 0;
+  for (let i = 0; i < n; i++) {
+    const [x, z] = BACH_KARTE[i];
+    const [ax, az] = BACH_KARTE[Math.max(0, i - 1)];
+    const [bx, bz] = BACH_KARTE[Math.min(n - 1, i + 1)];
+    const l = Math.hypot(bx - ax, bz - az) || 1;
+    const gefaelle = Math.abs(hoehe(bx, bz) - hoehe(ax, az)) / l;
+    const wild = 0.45 * THREE.MathUtils.smoothstep(gefaelle, 0.5, 1.3) + 0.55 * THREE.MathUtils.smoothstep(gefaelle, 1.45, 1.9);
+    if (i > 0) {
+      const [vx, vz] = BACH_KARTE[i - 1];
+      const strecke = Math.hypot(x - vx, hoehe(x, z) - hoehe(vx, vz), z - vz);
+      lauf += strecke;
+      zeit += strecke / (1.5 + 3.2 * (wild + stellen[i - 1].wild) * 0.5);
+    }
+    // Die Breite schwankt: mal eng zwischen Steinen, mal ein kleines Becken
+    const breit = (0.86 + 0.16 * wild) * (1 + 0.2 * Math.sin(lauf * 0.5) + 0.1 * Math.sin(lauf * 1.7 + 1));
+    stellen.push({ x, z, qx: -(bz - az) / l, qz: (bx - ax) / l, breit, wild, zeit, lauf });
+  }
+  return stellen;
+})();
+
+/**
+ * Höhe der Wasseroberfläche an einer Stelle quer im Bach (quer von -1 bis 1): in der Mitte gewölbt, am Rand knapp über dem Boden.
+ * Gemessen wird am gezeichneten Gelände (netzHoehe), nicht an der glatten Formel: Am Steilhang weichen die beiden
+ * voneinander ab, und das Wasser würde sonst stellenweise im Fels verschwinden.
+ */
+function wasserHoehe(x: number, z: number, quer: number, wild: number, schritt: number) {
+  return netzHoehe(x, z, schritt) + 0.13 + (1 - quer * quer) * (0.17 + 0.1 * wild);
+}
+
+/** Fünf Punkte quer über den Bach: Das Wasser ist ein gewölbtes Band, kein flacher Streifen */
+const BACH_QUER = [-1, -0.6, 0, 0.6, 1];
+
+function bachGeometrie(schritt: number) {
+  const n = BACH.length;
+  const m = BACH_QUER.length;
+  const pos = new Float32Array(n * m * 3);
+  const uv = new Float32Array(n * m * 2);
+  // Für den Shader: Ankunftszeit des Wassers, Lage quer im Bach (-1 bis 1), Wildheit
+  const fluss = new Float32Array(n * m * 3);
+  BACH.forEach((s, i) => {
+    BACH_QUER.forEach((quer, k) => {
+      const x = s.x + s.qx * quer * s.breit;
+      const z = s.z + s.qz * quer * s.breit;
+      pos.set([x, wasserHoehe(x, z, quer, s.wild, schritt), z], (i * m + k) * 3);
+      uv.set([s.lauf, quer * s.breit], (i * m + k) * 2);
+      fluss.set([s.zeit, quer, s.wild], (i * m + k) * 3);
+    });
   });
+  const index: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    for (let k = 0; k < m - 1; k++) {
+      const a = i * m + k;
+      index.push(a, a + m, a + 1, a + 1, a + m, a + m + 1);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
+  g.setAttribute("fluss", new THREE.BufferAttribute(fluss, 3));
+  g.setIndex(index);
+  g.computeVertexNormals();
+  return g;
+}
+
+/**
+ * Das Wasser: blauer Filz wie der See. Helle Strömungslinien wandern talwärts, in der Mitte voraus (wie ein V),
+ * im Wildbach dichter und schneller, im Wasserfall fast weiss. Zum Rand hin wird das Wasser dunkler, das gibt ihm Tiefe.
+ */
+function bachMaterial() {
+  const m = (filz("#2A84D8", 1.5) as THREE.MeshPhysicalMaterial).clone();
+  m.side = THREE.DoubleSide;
+  m.sheen = 0.9;
+  m.sheenColor = new THREE.Color("#BFE4FF");
+  m.sheenRoughness = 0.4;
+  m.onBeforeCompile = (shader) => {
+    shader.uniforms.uZeit = ZEIT;
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nattribute vec3 fluss;\nvarying vec3 vFluss;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvFluss = fluss;");
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", "#include <common>\nuniform float uZeit;\nvarying vec3 vFluss;")
+      .replace(
+        "#include <map_fragment>",
+        [
+          "#include <map_fragment>",
+          "float bachQuer = vFluss.y;",
+          "float bachWild = vFluss.z;",
+          // Am Rand kommt das Wasser etwas später an: Die Linien biegen sich zu einem V, das talwärts zeigt
+          "float bachLauf = vFluss.x + abs(bachQuer) * 0.3;",
+          "float bachLinie1 = sin((bachLauf - uZeit) * 5.9 + sin(bachQuer * 2.6 + vFluss.x * 1.3) * 1.2) * 0.5 + 0.5;",
+          "float bachLinie2 = sin((bachLauf * 1.07 - uZeit * 1.31) * 9.7 + sin(bachQuer * 4.1 - vFluss.x * 2.1)) * 0.5 + 0.5;",
+          "float bachKamm = smoothstep(mix(0.9, 0.7, bachWild), 0.99, bachLinie1) * 0.5 + smoothstep(mix(0.93, 0.78, bachWild), 0.995, bachLinie2) * 0.42;",
+          "bachKamm = clamp(bachKamm * (1.0 + bachWild * 0.8), 0.0, 1.0);",
+          "diffuseColor.rgb *= mix(0.58, 1.1, 1.0 - bachQuer * bachQuer);",
+          "diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.42, 0.72, 1.0), bachWild * 0.45);",
+          "diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96, 0.985, 1.0), bachKamm);",
+        ].join("\n"),
+      )
+      .replace("#include <emissivemap_fragment>", "#include <emissivemap_fragment>\ntotalEmissiveRadiance += vec3(0.6, 0.82, 1.0) * bachKamm * 0.3;");
+  };
+  m.customProgramCacheKey = () => "berg-bach";
+  return m;
+}
+
+/**
+ * Der Bach: gewölbtes Wasser mit wandernden Strömungslinien, im Wasserfall mit weissen Schlieren.
+ * «schritt» ist die Maschenweite des gezeichneten Geländes, damit das Wasser genau darauf liegt.
+ */
+export function Bach({ schritt }: { schritt: number }) {
+  const geometrie = useMemo(() => bachGeometrie(schritt), [schritt]);
+  const wasser = useMemo(() => bachMaterial(), []);
+  useEffect(() => () => geometrie.dispose(), [geometrie]);
+  useEffect(() => () => wasser.dispose(), [wasser]);
   return <mesh geometry={geometrie} material={wasser} receiveShadow />;
 }
 

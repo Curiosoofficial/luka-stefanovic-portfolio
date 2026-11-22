@@ -75,6 +75,9 @@ function bodenFarbe(x: number, y: number, z: number, steilheit: number, ziel: TH
   ziel.lerp(FARBE.seegrund, 1 - stufe(y, WASSER_Y - 1.2, WASSER_Y - 0.1));
 }
 
+/** Maschenweite des Gelände-Netzes: auf schwächeren Geräten gröber. Der Bach richtet sich danach. */
+const gelaendeSchritt = (sparsam: boolean) => (sparsam ? 2.4 : 1.5);
+
 function gelaendeGeometrie(schritt: number) {
   const nx = Math.round((WELT.x1 - WELT.x0) / schritt);
   const nz = Math.round((WELT.z1 - WELT.z0) / schritt);
@@ -128,7 +131,7 @@ function gelaendeGeometrie(schritt: number) {
 }
 
 function Gelaende({ sparsam }: { sparsam: boolean }) {
-  const geometrie = useMemo(() => gelaendeGeometrie(sparsam ? 2.4 : 1.5), [sparsam]);
+  const geometrie = useMemo(() => gelaendeGeometrie(gelaendeSchritt(sparsam)), [sparsam]);
   useEffect(() => () => geometrie.dispose(), [geometrie]);
   // Die Farbkarte: eine Zelle pro Masche, ohne Glättung, damit jede Masche genau eine Garnfarbe hat
   const karte = useMemo(() => {
@@ -309,6 +312,16 @@ export function Kamerafahrt({
     if (Math.abs(kamera.fov - fov) > 0.01) {
       kamera.fov = fov;
       kamera.updateProjectionMatrix();
+    }
+    // Lupe für die Entwicklung: In der Browser-Konsole window.__lupe = { fov, gier, nick } setzen, um Einzelheiten gross anzusehen.
+    // In der veröffentlichten Seite ist dieser Teil nicht enthalten.
+    if (process.env.NODE_ENV !== "production") {
+      const lupe = (globalThis as unknown as { __lupe?: { fov: number; gier: number; nick: number } }).__lupe;
+      if (lupe) {
+        kamera.rotation.set(NICK + lupe.nick, lupe.gier, 0, "YXZ");
+        kamera.fov = lupe.fov;
+        kamera.updateProjectionMatrix();
+      }
     }
 
     // Schärfe: dort, wo der Blick auf den Berg trifft (weich nachgezogen)
@@ -714,7 +727,7 @@ export function Berg({ ruhig, sparsam, hochformat }: { ruhig: React.RefObject<bo
       <SitzVogel art={2} phase={0.6} position={boden(2.6, 121.4, 3.76)} rotation={[0, -1.3, 0]} />
 
       {/* Der Bach: Wasserfall in der Felswand, Tümpel auf der Alp, dann durch Wald und Dorf in den See */}
-      <Bach />
+      <Bach schritt={gelaendeSchritt(sparsam)} />
       <Gischt position={boden(-18, 51, 0.05)} />
 
       {/* Rauch aus allen Kaminen */}
