@@ -1,5 +1,6 @@
 // Alle Projekte an einem Ort. Neue Projekte hier eintragen, die Seite passt sich an.
-// Ehrlichkeit zuerst: Kundenseiten mit Lovable, Bootcamp- und Tutorial-Projekte sind klar gekennzeichnet.
+// Kundenseiten mit Lovable, Bootcamp- und Tutorial-Projekte sind über «art» gekennzeichnet.
+// Woher ein Kurs oder ein Tutorial stammt (Anbieter, Kanal), steht bewusst nirgends.
 // Reihenfolge: grosse Web-Apps (Next.js und React), El Pollo Loco, Curiosolution samt Kundenprojekten, Join, zuletzt dieses Portfolio.
 // Texte kurz halten (Beschreibung um 100 Zeichen, höchstens 5 Technik-Stichworte): Alle Karten sind gleich hoch.
 
@@ -9,7 +10,7 @@ export type Projekt = {
   slug: string;
   titel: string;
   art: ProjektArt;
-  /** Ehrlicher Zusatz zur Entstehung, z. B. «React, KI-gestützt mit Lovable» */
+  /** Kurzer Zusatz zur Entstehung, z. B. «React, KI-gestützt mit Lovable». Keine Namen von Kursen oder Tutorials. */
   hinweis?: string;
   kurz: string;
   technik: string[];
@@ -28,7 +29,7 @@ export const projekte: Projekt[] = [
     slug: "airbnb",
     titel: "Airbnb Klon",
     art: "Tutorial",
-    hinweis: "Video-Tutorial, KI-gestützt erweitert",
+    hinweis: "KI-gestützt erweitert",
     kurz: "Unterkünfte suchen, auf der Karte finden und mit Kalender buchen, dazu Bewertungen und eigene Inserate.",
     technik: ["Next.js 16", "TypeScript", "Prisma", "Supabase", "Kinde Auth"],
     farbe: "#EE4F86",
@@ -39,7 +40,6 @@ export const projekte: Projekt[] = [
     slug: "stack-overflow",
     titel: "Stack Overflow Klon",
     art: "Tutorial",
-    hinweis: "Nachgebaut nach JS Mastery",
     kurz: "Frage-Antwort-Plattform mit Code-Beispielen, Abstimmen, Tags, Suche und Profilen mit Reputation.",
     technik: ["Next.js 16", "TypeScript", "MongoDB", "Clerk", "Zod"],
     farbe: "#F48A35",
@@ -50,8 +50,7 @@ export const projekte: Projekt[] = [
     slug: "snapgram",
     titel: "Snapgram",
     art: "Tutorial",
-    // Frontend nach dem JS-Mastery-Tutorial (2023), eigenes Backend 2026 mit KI-Hilfe ergänzt (siehe README im Repo)
-    hinweis: "JS Mastery, KI-gestützt erweitert",
+    hinweis: "KI-gestützt erweitert",
     kurz: "Social-Media-App im Stil von Instagram: Fotos posten, liken, speichern und Leuten folgen, mit Demo-Login.",
     technik: ["React", "TypeScript", "TanStack Query", "Node.js", "PostgreSQL"],
     farbe: "#3A86D8",
@@ -62,7 +61,6 @@ export const projekte: Projekt[] = [
     slug: "lingo",
     titel: "Lingo",
     art: "Tutorial",
-    hinweis: "Nachgebaut nach Code With Antonio",
     kurz: "Sprachlern-App im Stil von Duolingo: Lektionen mit Aufgaben, Rangliste, Quests und Shop mit Stripe.",
     technik: ["Next.js 16", "TypeScript", "Drizzle", "Clerk", "Stripe"],
     farbe: "#5BB54A",
@@ -75,7 +73,6 @@ export const projekte: Projekt[] = [
     slug: "el-pollo-loco",
     titel: "El Pollo Loco",
     art: "Bootcamp",
-    hinweis: "Developer Akademie",
     kurz: "2D-Jump-and-Run im Browser, objektorientiert in reinem JavaScript.",
     technik: ["JavaScript", "OOP", "Canvas"],
     farbe: "#F48A35",
@@ -142,7 +139,6 @@ export const projekte: Projekt[] = [
     slug: "join",
     titel: "Join",
     art: "Bootcamp",
-    hinweis: "Developer Akademie",
     kurz: "Kanban-Taskmanager mit Board, Aufgaben und Kontakten.",
     technik: ["HTML", "CSS", "JavaScript"],
     farbe: "#3A86D8",

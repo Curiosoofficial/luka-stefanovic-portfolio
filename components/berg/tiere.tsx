@@ -211,6 +211,17 @@ const FLECKEN: Kugel[] = [
   [-0.62, 0.16, 0.2, 0.22],
 ];
 const KOPF: Kugel[] = [[0, 0, 0, 0.43]];
+/**
+ * Die vier Beine aus Watte: je drei Bäusche übereinander, nach oben etwas dicker.
+ * Die Masse sind doppelt so gross angegeben und werden halb so gross gezeichnet: So bleibt der Flaum an den dünnen Beinen kurz.
+ */
+const BEINE: Kugel[] = [-0.46, 0.46].flatMap((x) =>
+  [-0.27, 0.27].flatMap((z): Kugel[] => [
+    [x * 2, 0.5, z * 2, 0.25],
+    [x * 2, 0.84, z * 2, 0.27],
+    [x * 2, 1.16, z * 2, 0.29],
+  ]),
+);
 const STIRNLOCKE: Kugel[] = [
   [0.02, 0.38, 0, 0.17],
   [0.14, 0.32, 0, 0.12],
@@ -254,17 +265,13 @@ export function Kuh({ flecken = "#8A5230", phase = 0, ...lage }: Lage & { flecke
       <mesh material={filzKugel("#F4AFAE", 2)} position={[-0.3, 0.53, 0]}>
         <sphereGeometry args={[0.17, 14, 10]} />
       </mesh>
-      {/* Kurze, dicke Beine mit Hufen */}
+      {/* Kurze, dicke Beine aus Watte, darunter dunkle Hufe */}
+      <Watte kugeln={BEINE} farbe={fell} grob scale={0.5} />
       {[-0.46, 0.46].map((x) =>
         [-0.27, 0.27].map((z) => (
-          <group key={`${x}${z}`} position={[x, 0, z]}>
-            <mesh material={filzKugel(fell, 2)} position={[0, 0.34, 0]} castShadow>
-              <cylinderGeometry args={[0.14, 0.125, 0.52, 12]} />
-            </mesh>
-            <mesh material={dunkel} position={[0, 0.07, 0]}>
-              <cylinderGeometry args={[0.14, 0.15, 0.14, 12]} />
-            </mesh>
-          </group>
+          <mesh key={`${x}${z}`} material={dunkel} position={[x, 0.08, z]} castShadow>
+            <cylinderGeometry args={[0.15, 0.165, 0.16, 12]} />
+          </mesh>
         )),
       )}
       {/* Halsband mit Glocke */}

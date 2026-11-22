@@ -87,8 +87,8 @@ Die Farbe eines Punkts hängt von seiner Position in der Form ab. So entstehen F
 | BIRAC Plattenleger | Kundenprojekt · React, KI-gestützt mit Lovable | live: birac.ch |
 | HLS Consulting & Planung | Kundenprojekt · React, KI-gestützt mit Lovable | live: hls-cp.com |
 | Raumkonzepte Durisch | Kundenprojekt · Technik noch klären | live: raumkonzeptedurisch.ch |
-| Join | Bootcamp (Developer Akademie) | reparieren und deployen |
-| El Pollo Loco | Bootcamp (Developer Akademie) | reparieren und deployen |
+| Join | Bootcamp | reparieren und deployen |
+| El Pollo Loco | Bootcamp | reparieren und deployen |
 | Eigenes Next.js-Projekt | Eigenes Projekt | Platzhalter |
 
 Platzhalter, die Luka später ersetzt: E-Mail, LinkedIn, Porträtfoto, Spielplatz-Inhalte, Projekt-Screenshots, eigener Track.

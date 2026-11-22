@@ -60,6 +60,9 @@ export function BergSeite() {
               </p>
             )}
             <p>
+              Telefon: <a href={`tel:${profil.telefon.replace(/\s/g, "")}`}>{profil.telefon}</a>
+            </p>
+            <p>
               <a href={profil.github}>GitHub</a>
               {kontaktEcht.linkedin && (
                 <>

@@ -128,6 +128,8 @@ function Welt({
   const umgebung = useRef<THREE.HemisphereLight>(null);
   const nebel = useRef<THREE.Fog>(null);
   const himmel = useRef<THREE.Color>(null);
+  // Die Szene, die man sieht (der Strahlen-Effekt zeichnet die Sonne zusätzlich in einer eigenen)
+  const hauptszene = useThree((s) => s.scene);
   return (
     <>
       <color ref={himmel} attach="background" args={["#BFE2F8"]} />
@@ -151,10 +153,19 @@ function Welt({
         shadow-bias={-0.0005}
         shadow-normalBias={0.06}
       />
-      {/* Lichthof hinter der Sonne: Von ihm gehen die Sonnenstrahlen aus (siehe GodRays unten) */}
-      <mesh ref={sonnenschein} position={[SONNE_ORT[0], SONNE_ORT[1], SONNE_ORT[2] - 4]}>
-        <sphereGeometry args={[12, 24, 16]} />
-        <meshBasicMaterial color="#FFE9A6" transparent opacity={0.55} depthWrite={false} fog={false} toneMapped={false} />
+      {/*
+        Lichtquelle der Sonnenstrahlen (siehe GodRays unten): eine Kugel knapp um die gestrickte Sonne, genau an ihrem Ort.
+        Im Bild selbst wird sie nicht gezeichnet, nur der Strahlen-Effekt sieht sie. Sonst stünde eine zweite, blasse Sonne hinter der ersten.
+      */}
+      <mesh
+        ref={sonnenschein}
+        position={SONNE_ORT}
+        onBeforeRender={(_gl, szene, _kamera, _geometrie, material) => {
+          material.colorWrite = szene !== hauptszene;
+        }}
+      >
+        <sphereGeometry args={[10, 24, 16]} />
+        <meshBasicMaterial color="#FFE9A6" transparent opacity={0.6} depthWrite={false} fog={false} toneMapped={false} />
       </mesh>
       <Kamerafahrt ruhig={ruhig} licht={licht} umgebung={umgebung} nebel={nebel} himmel={himmel} />
       <Berg ruhig={ruhig} sparsam={sparsam} hochformat={hochformat} />

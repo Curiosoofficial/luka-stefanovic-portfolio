@@ -9,8 +9,9 @@ export const profil = {
   ort: "Zürich",
   status: "Offen für neue Stellen",
 
-  // PLATZHALTER: echte E-Mail-Adresse eintragen
-  email: "kontakt@example.ch",
+  email: "lukastefanovic2026@gmail.com",
+  /** So wird die Nummer angezeigt; der Link zum Anrufen entsteht daraus ohne Leerzeichen */
+  telefon: "+41 76 343 41 62",
   github: "https://github.com/Curiosoofficial",
   // PLATZHALTER: Link zum eigenen LinkedIn-Profil eintragen
   linkedin: "https://www.linkedin.com/",

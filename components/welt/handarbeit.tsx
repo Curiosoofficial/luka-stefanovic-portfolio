@@ -308,9 +308,16 @@ const FLAUM_STUFEN = [0.3, 0.44, 0.56, 0.67, 0.77, 0.86];
  * Wolke aus Watte: mehrere Kugeln, darüber sechs Flaum-Hüllen (siehe flaumHuelle),
  * die den Rand weich und faserig machen.
  */
-export function Watte({ kugeln, farbe = "#FBF8F1", schatten = true, ...lage }: Lage & { kugeln: Kugel[]; farbe?: string; schatten?: boolean }) {
+export function Watte({
+  kugeln,
+  farbe = "#FBF8F1",
+  schatten = true,
+  grob = false,
+  ...lage
+}: Lage & { kugeln: Kugel[]; farbe?: string; schatten?: boolean; grob?: boolean }) {
   const { basis, huellen } = useMemo(() => {
-    const basis = kugelHaufen(kugeln, (r) => new THREE.SphereGeometry(r, 40, 28), 0.85);
+    // «grob»: für kleine Teile (Beine) reichen viel weniger Dreiecke
+    const basis = kugelHaufen(kugeln, (r) => (grob ? new THREE.SphereGeometry(r, 18, 12) : new THREE.SphereGeometry(r, 40, 28)), 0.85);
     const pos = basis.attributes.position;
     const nor = basis.attributes.normal;
     const huellen = FLAUM_STUFEN.map((_, i) => {
@@ -323,7 +330,7 @@ export function Watte({ kugeln, farbe = "#FBF8F1", schatten = true, ...lage }: L
       return g;
     });
     return { basis, huellen };
-  }, [kugeln]);
+  }, [kugeln, grob]);
   useEffect(
     () => () => {
       basis.dispose();

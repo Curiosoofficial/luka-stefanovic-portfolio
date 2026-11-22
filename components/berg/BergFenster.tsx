@@ -21,6 +21,8 @@ const echtesLinkedin = kontaktEcht.linkedin;
 
 const knopf = "bastel-knopf filz inline-flex items-center gap-2 rounded-full bg-gelb px-5 py-2.5 text-sm font-extrabold text-tinte [--kante:#c9951a]";
 const nebenLink = "text-sm font-bold underline decoration-2 underline-offset-4 hover:text-akzent";
+// Zweiter Knopf neben der E-Mail (Telefon): gleiche Form, aber hell
+const knopfHell = "inline-flex items-center gap-2 rounded-full bg-grund px-5 py-2.5 text-sm font-extrabold text-schrift ring-2 ring-schrift/15 hover:ring-schrift/40";
 
 /**
  * Mini-Navigation: «Luka» und «Kontakt». Sie ist nur ganz oben im Startbild zu sehen.
@@ -249,18 +251,24 @@ export function BergFenster() {
               <p className="text-base leading-relaxed">
                 Ich bin {profil.name}, {profil.rolle} ({profil.stack}) in {profil.ort}. Ich freue mich über deine Nachricht.
               </p>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              <div className="flex flex-wrap items-center gap-3">
                 {echteMail && (
                   <a href={`mailto:${profil.email}`} className={knopf}>
                     {profil.email}
                   </a>
                 )}
+                <a href={`tel:${profil.telefon.replace(/\s/g, "")}`} className={knopfHell}>
+                  <span className="sr-only">Telefon: </span>
+                  {profil.telefon}
+                </a>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
                 {echtesLinkedin && (
-                  <Aussenlink href={profil.linkedin} className={echteMail ? nebenLink : knopf}>
+                  <Aussenlink href={profil.linkedin} className={nebenLink}>
                     LinkedIn
                   </Aussenlink>
                 )}
-                <Aussenlink href={profil.github} className={echteMail || echtesLinkedin ? nebenLink : knopf}>
+                <Aussenlink href={profil.github} className={nebenLink}>
                   GitHub
                 </Aussenlink>
                 <Aussenlink href={profil.firma.url} className={nebenLink}>
