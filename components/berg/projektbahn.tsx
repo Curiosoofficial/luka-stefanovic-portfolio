@@ -9,6 +9,7 @@ import { polsterGeometrie, type Lage } from "@/components/welt/teile";
 import { type Projekt } from "@/data/projects";
 import { FilzSchild, ZEIT } from "./bauteile";
 import { type Fenster, fensterStand, oeffneFenster } from "./fenster";
+import { useTexte } from "./texte";
 
 /**
  * Die Inhalte der Seite als Gegenstände in der Welt:
@@ -300,7 +301,7 @@ export function Projektbahn({ punkte, projekte }: { punkte: Punkt[]; projekte: P
 
 /** Gelber Briefkasten auf einem Holzpfosten, darüber eine Tafel: der Kontakt */
 export function Briefkasten({ ...lage }: Lage) {
-  const text = useMemo(() => ["Kontakt"], []);
+  const text = useTexte().schilder.kontakt;
   return (
     <group {...lage}>
       <Klickbar ziel={{ art: "kontakt" }} griff={[4, 4.6, 2.2]} griffMitte={[0, 2.1, 0]} marke={[1.5, 3.55, 0.4]}>
@@ -334,7 +335,7 @@ export function Briefkasten({ ...lage }: Lage) {
 
 /** Schild «Über mich» an einem Holzpfosten */
 export function UeberMichSchild({ ...lage }: Lage) {
-  const text = useMemo(() => ["Über mich"], []);
+  const text = useTexte().schilder.ueberMich;
   return (
     <group {...lage}>
       <Klickbar ziel={{ art: "ueber" }} griff={[4.4, 3.6, 1.6]} griffMitte={[0, 1.7, 0]} marke={[1.75, 2.75, 0.3]}>

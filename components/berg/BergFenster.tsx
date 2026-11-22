@@ -3,9 +3,10 @@
 import { useLenis } from "lenis/react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { Knopf } from "@/components/ui/Knopf";
-import { kontaktEcht, profil, skills, ueberMich } from "@/data/profil";
-import { projekte } from "@/data/projects";
+import { kontaktEcht, profil, skills } from "@/data/profil";
 import { oeffneFenster, schliesseFenster, useFenster } from "./fenster";
+import { type Sprache, useSprache, waehleSprache } from "./sprache";
+import { useTexte } from "./texte";
 
 /**
  * Das Infofenster der Berg-Welt. Es geht auf, wenn man in der Welt etwas anklickt:
@@ -13,6 +14,7 @@ import { oeffneFenster, schliesseFenster, useFenster } from "./fenster";
  *
  * Bedienung: Schliessen mit dem Knopf, der Esc-Taste oder einem Klick daneben.
  * Bei Projekten blättern die Pfeiltasten und die Knöpfe unten durch alle Projekte.
+ * Alle Texte kommen in der gewählten Sprache aus texte.ts, der Lebenslauf zum Herunterladen ebenfalls.
  */
 
 // Platzhalter aus data/profil.ts werden nicht angezeigt: lieber kein Eintrag als eine falsche Adresse
@@ -21,14 +23,39 @@ const echtesLinkedin = kontaktEcht.linkedin;
 
 const knopf = "bastel-knopf filz inline-flex items-center gap-2 rounded-full bg-gelb px-5 py-2.5 text-sm font-extrabold text-tinte [--kante:#c9951a]";
 const nebenLink = "text-sm font-bold underline decoration-2 underline-offset-4 hover:text-akzent";
-// Zweiter Knopf neben der E-Mail (Telefon): gleiche Form, aber hell
+// Zweiter Knopf neben der E-Mail (Telefon, Lebenslauf): gleiche Form, aber hell
 const knopfHell = "inline-flex items-center gap-2 rounded-full bg-grund px-5 py-2.5 text-sm font-extrabold text-schrift ring-2 ring-schrift/15 hover:ring-schrift/40";
 
+const SPRACHEN: Sprache[] = ["de", "en"];
+
+/** Umschalter Deutsch / Englisch: zwei kleine Knöpfe, der aktive ist gefüllt */
+function Sprachwahl({ className = "" }: { className?: string }) {
+  const sprache = useSprache();
+  const t = useTexte();
+  return (
+    <div role="group" aria-label={t.ui.sprachwahl} className={`flex items-center gap-0.5 rounded-full bg-wolle/90 p-1 ${className}`}>
+      {SPRACHEN.map((s) => (
+        <button
+          key={s}
+          type="button"
+          lang={s}
+          aria-pressed={sprache === s}
+          onClick={() => waehleSprache(s)}
+          className={`cursor-pointer rounded-full px-2.5 py-1 text-xs leading-none font-extrabold uppercase ${sprache === s ? "bg-tinte text-wolle" : "text-tinte hover:bg-tinte/10"}`}
+        >
+          {s}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /**
- * Mini-Navigation: «Luka» und «Kontakt». Sie ist nur ganz oben im Startbild zu sehen.
+ * Mini-Navigation: «Luka», die Sprachwahl und «Kontakt». Sie ist nur ganz oben im Startbild zu sehen.
  * Sobald man hinunterscrollt, blendet sie aus und ist nicht mehr bedienbar: Die Welt gehört dann ganz dem Berg.
  */
 export function BergNavigation() {
+  const t = useTexte();
   const [oben, setOben] = useState(true);
   useEffect(() => {
     const pruefen = () => setOben(window.scrollY < 60);
@@ -46,7 +73,7 @@ export function BergNavigation() {
       inert={!oben}
       className={`pointer-events-none fixed inset-x-0 top-0 z-50 px-4 pt-4 transition-opacity duration-500 md:px-6 ${oben ? "opacity-100" : "opacity-0"}`}
     >
-      <nav aria-label="Hauptnavigation" className="mx-auto flex max-w-7xl items-center justify-between">
+      <nav aria-label={t.ui.navigation} className="mx-auto flex max-w-7xl items-center justify-between gap-3">
         <a
           href="#gipfel"
           className="pointer-events-auto flex items-center gap-2 rounded-full bg-wolle/85 py-1.5 pr-4 pl-2 font-display text-xl font-bold tracking-tight shadow-[0_10px_26px_-14px_rgba(46,31,21,0.5)] backdrop-blur"
@@ -54,13 +81,16 @@ export function BergNavigation() {
           <Knopf farbe="#EE4F86" groesse={26} />
           {profil.vorname}
         </a>
-        <button
-          type="button"
-          onClick={() => oeffneFenster({ art: "kontakt" })}
-          className="bastel-knopf filz pointer-events-auto cursor-pointer rounded-full bg-gelb px-5 py-2 text-sm font-extrabold text-tinte [--kante:#c9951a]"
-        >
-          Kontakt
-        </button>
+        <span className="flex items-center gap-2">
+          <Sprachwahl className="pointer-events-auto shadow-[0_10px_26px_-14px_rgba(46,31,21,0.5)] backdrop-blur" />
+          <button
+            type="button"
+            onClick={() => oeffneFenster({ art: "kontakt" })}
+            className="bastel-knopf filz pointer-events-auto cursor-pointer rounded-full bg-gelb px-5 py-2 text-sm font-extrabold text-tinte [--kante:#c9951a]"
+          >
+            {t.ui.kontakt}
+          </button>
+        </span>
       </nav>
     </header>
   );
@@ -69,9 +99,9 @@ export function BergNavigation() {
 function Stichworte({ liste }: { liste: string[] }) {
   return (
     <ul className="flex flex-wrap gap-2">
-      {liste.map((t) => (
-        <li key={t} className="rounded-full bg-grund px-3 py-1 text-xs font-extrabold text-schrift">
-          {t}
+      {liste.map((s) => (
+        <li key={s} className="rounded-full bg-grund px-3 py-1 text-xs font-extrabold text-schrift">
+          {s}
         </li>
       ))}
     </ul>
@@ -79,21 +109,34 @@ function Stichworte({ liste }: { liste: string[] }) {
 }
 
 function Aussenlink({ href, children, className }: { href: string; children: ReactNode; className: string }) {
+  const t = useTexte();
   return (
     <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
       {children} <span aria-hidden>↗</span>
-      <span className="sr-only">(öffnet in neuem Tab)</span>
+      <span className="sr-only">{t.ui.neuerTab}</span>
+    </a>
+  );
+}
+
+/** Knopf zum Herunterladen des Lebenslaufs in der gewählten Sprache */
+function Lebenslauf({ className }: { className: string }) {
+  const t = useTexte();
+  return (
+    <a href={t.cv} download className={className}>
+      <span aria-hidden>↓</span> {t.ui.lebenslauf}
     </a>
   );
 }
 
 export function BergFenster() {
   const fenster = useFenster();
+  const t = useTexte();
   const lenis = useLenis();
   const rahmen = useRef<HTMLDivElement>(null);
   const zu = useRef<HTMLButtonElement>(null);
   const offen = fenster !== null;
   const index = fenster?.art === "projekt" ? fenster.index : -1;
+  const anzahl = t.projekte.length;
 
   // Solange das Fenster offen ist: Seite nicht scrollen, Fokus ins Fenster, danach zurück
   useEffect(() => {
@@ -116,8 +159,8 @@ export function BergFenster() {
     if (!offen) return;
     const taste = (e: KeyboardEvent) => {
       if (e.key === "Escape") schliesseFenster();
-      if (index >= 0 && e.key === "ArrowRight") oeffneFenster({ art: "projekt", index: (index + 1) % projekte.length });
-      if (index >= 0 && e.key === "ArrowLeft") oeffneFenster({ art: "projekt", index: (index - 1 + projekte.length) % projekte.length });
+      if (index >= 0 && e.key === "ArrowRight") oeffneFenster({ art: "projekt", index: (index + 1) % anzahl });
+      if (index >= 0 && e.key === "ArrowLeft") oeffneFenster({ art: "projekt", index: (index - 1 + anzahl) % anzahl });
       if (e.key === "Tab" && rahmen.current) {
         const ziele = [...rahmen.current.querySelectorAll<HTMLElement>("a[href], button")];
         if (ziele.length === 0) return;
@@ -133,10 +176,10 @@ export function BergFenster() {
     };
     window.addEventListener("keydown", taste);
     return () => window.removeEventListener("keydown", taste);
-  }, [offen, index]);
+  }, [offen, index, anzahl]);
 
   if (!fenster) return null;
-  const projekt = index >= 0 ? projekte[index] : null;
+  const projekt = index >= 0 ? t.projekte[index] : null;
   const farbe = projekt?.farbe ?? (fenster.art === "kontakt" ? "#FFC93C" : "#F56FA1");
 
   return (
@@ -157,19 +200,20 @@ export function BergFenster() {
           }}
         >
           <span className="rounded-full bg-wolle/90 px-3 py-1 text-xs font-extrabold tracking-wide text-tinte uppercase">
-            {projekt ? projekt.art : fenster.art === "kontakt" ? "Kontakt" : "Über mich"}
+            {projekt ? projekt.artText : fenster.art === "kontakt" ? t.ui.kontakt : t.ui.ueberMich}
           </span>
-          <span className="flex items-center gap-3">
+          <span className="flex items-center gap-2.5">
             {projekt && (
               <span className="rounded-full bg-tinte/15 px-2.5 py-1 text-xs font-extrabold text-tinte">
-                {index + 1} / {projekte.length}
+                {index + 1} / {anzahl}
               </span>
             )}
+            <Sprachwahl />
             <button
               ref={zu}
               type="button"
               onClick={schliesseFenster}
-              aria-label="Fenster schliessen"
+              aria-label={t.ui.schliessen}
               className="grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-wolle text-xl leading-none font-extrabold text-tinte shadow-[0_3px_0_rgb(46_31_21/0.3)]"
             >
               ×
@@ -191,29 +235,29 @@ export function BergFenster() {
               <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pt-1">
                 {projekt.live && (
                   <Aussenlink href={projekt.live} className={knopf}>
-                    Live ansehen
+                    {t.ui.live}
                   </Aussenlink>
                 )}
                 {projekt.github && (
                   <Aussenlink href={projekt.github} className={nebenLink}>
-                    Code auf GitHub
+                    {t.ui.code}
                   </Aussenlink>
                 )}
               </div>
               <div className="flex items-center justify-between border-t-2 border-dashed border-schrift/15 pt-4">
                 <button
                   type="button"
-                  onClick={() => oeffneFenster({ art: "projekt", index: (index - 1 + projekte.length) % projekte.length })}
+                  onClick={() => oeffneFenster({ art: "projekt", index: (index - 1 + anzahl) % anzahl })}
                   className="cursor-pointer rounded-full px-3 py-1.5 text-sm font-extrabold hover:bg-grund"
                 >
-                  ‹ Vorheriges
+                  {t.ui.vorheriges}
                 </button>
                 <button
                   type="button"
-                  onClick={() => oeffneFenster({ art: "projekt", index: (index + 1) % projekte.length })}
+                  onClick={() => oeffneFenster({ art: "projekt", index: (index + 1) % anzahl })}
                   className="cursor-pointer rounded-full px-3 py-1.5 text-sm font-extrabold hover:bg-grund"
                 >
-                  Nächstes ›
+                  {t.ui.naechstes}
                 </button>
               </div>
             </>
@@ -222,11 +266,11 @@ export function BergFenster() {
           {fenster.art === "ueber" && (
             <>
               <h2 id="fenster-titel" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-                {ueberMich.titel}
+                {t.ueberMich.titel}
               </h2>
-              <p className="text-base leading-relaxed">{ueberMich.text}</p>
+              <p className="text-base leading-relaxed">{t.ueberMich.text}</p>
               <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-                {ueberMich.fakten.map((f) => (
+                {t.ueberMich.fakten.map((f) => (
                   <div key={f.label} className="contents">
                     <dt className="font-extrabold text-leise">{f.label}</dt>
                     <dd>{f.wert}</dd>
@@ -234,8 +278,11 @@ export function BergFenster() {
                 ))}
               </dl>
               <div className="space-y-2">
-                <h3 className="text-sm font-extrabold text-leise">Womit ich arbeite</h3>
+                <h3 className="text-sm font-extrabold text-leise">{t.ui.womit}</h3>
                 <Stichworte liste={[...skills.kern, ...skills.werkzeuge]} />
+              </div>
+              <div className="pt-1">
+                <Lebenslauf className={knopf} />
               </div>
             </>
           )}
@@ -244,13 +291,11 @@ export function BergFenster() {
             <>
               <div>
                 <h2 id="fenster-titel" className="font-display text-3xl font-bold tracking-tight md:text-4xl">
-                  Schreib mir.
+                  {t.ui.schreibMir}
                 </h2>
-                <p className="mt-1 text-sm font-bold text-akzent">{profil.status}</p>
+                <p className="mt-1 text-sm font-bold text-akzent">{t.status}</p>
               </div>
-              <p className="text-base leading-relaxed">
-                Ich bin {profil.name}, {profil.rolle} ({profil.stack}) in {profil.ort}. Ich freue mich über deine Nachricht.
-              </p>
+              <p className="text-base leading-relaxed">{t.ui.kontaktText}</p>
               <div className="flex flex-wrap items-center gap-3">
                 {echteMail && (
                   <a href={`mailto:${profil.email}`} className={knopf}>
@@ -258,9 +303,10 @@ export function BergFenster() {
                   </a>
                 )}
                 <a href={`tel:${profil.telefon.replace(/\s/g, "")}`} className={knopfHell}>
-                  <span className="sr-only">Telefon: </span>
+                  <span className="sr-only">{t.ui.telefon}: </span>
                   {profil.telefon}
                 </a>
+                <Lebenslauf className={knopfHell} />
               </div>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
                 {echtesLinkedin && (

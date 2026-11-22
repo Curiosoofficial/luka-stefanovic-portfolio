@@ -9,7 +9,6 @@ import { holz, strick } from "@/components/welt/materialien";
 import { Garnknaeuel, Stein, type Lage } from "@/components/welt/teile";
 import { zufall } from "@/components/welt/texturen";
 import { weltStore } from "@/components/welt/zustand";
-import { projekte } from "@/data/projects";
 import { FilzSchild, Gipfelkreuz, See, StrickSonne, Stuetze, Tannen, ZEIT, uhrStellen, type Baumplatz } from "./bauteile";
 import { BACH_KARTE, BRUECKEN, GASSEN, ORTE, SEE, WASSER_Y, WEG, WELT, abstandZuBauten, abstandZumBach, abstandZumWeg, abstandZurGasse, amWeg, hoehe, seilbahnX, stufe } from "./gelaende";
 import { Bach, Fahne, Gischt, Heuballen, Rauch, Schneeflocken, Steg, Wimpelkette } from "./leben";
@@ -17,6 +16,7 @@ import { GARN, KACHEL, KARTE, MASCHEN_COS, MASCHEN_SIN, MASCHE_B, MASCHE_H, imFe
 import { Baumstumpf, Blumenwiese, Bruecke, Gras, Holzstapel, Schilf, Seerosen, Steine } from "./natur";
 import { KARTON_WEISS, KRAFT, KRAFT_DUNKEL, PappHaus, PappKirche, PappStation } from "./pappe";
 import { Briefkasten, GONDEL_SEITE, Projektbahn, UeberMichSchild } from "./projektbahn";
+import { useTexte } from "./texte";
 import { Kuh, SitzVogel, Voegel } from "./tiere";
 
 /**
@@ -644,11 +644,6 @@ function Zaun({ von, bis }: { von: [number, number]; bis: [number, number] }) {
 
 const ZAUN_VON: [number, number] = [6, 63.6];
 const ZAUN_BIS: [number, number] = [23, 61.2];
-const SCHILD_ROLLE = ["Webentwickler in Zürich"];
-const SCHILD_STACK = ["React · Next.js · TypeScript"];
-const SCHILD_TAL = ["↓ Ab ins Tal"];
-const SCHILD_GONDELN = ["↓ Projekte: Gondel anklicken"];
-const SCHILD_GONDELN_HANDY = ["↓ Projekte:", "Gondel antippen"];
 
 /** Wo der Schwarm am Gipfel kreist: rechts über dem Schild, im Hochformat näher an der Mitte, damit man ihn sieht */
 const VOEGEL_GIPFEL: [number, number] = [17, 22];
@@ -664,6 +659,8 @@ const KORDEL_WEG: Punkt[] = WEG.filter((_, i) => i % 2 === 0 || i === WEG.length
 
 export function Berg({ ruhig, sparsam, hochformat }: { ruhig: React.RefObject<boolean>; sparsam: boolean; hochformat: boolean }) {
   const boden = (x: number, z: number, hoch = 0): Punkt => [x, hoehe(x, z) + hoch, z];
+  // Schrift auf den Schildern und Namen der Projekte in der gewählten Sprache
+  const t = useTexte();
 
   // Seilbahn: von der Bergstation unter dem Gipfel über drei Stützen gerade durch die Bildmitte zur Talstation
   const seil: Punkt[] = useMemo(
@@ -687,16 +684,16 @@ export function Berg({ ruhig, sparsam, hochformat }: { ruhig: React.RefObject<bo
       {hochformat ? (
         <>
           {/* Hochformat: Die Schilder stehen untereinander vor dem Namen, weil daneben kein Platz ist */}
-          <FilzSchild zeilen={SCHILD_ROLLE} breite={9} hoehe={1.7} pfosten={0.3} position={boden(0, 27)} />
-          <FilzSchild zeilen={SCHILD_STACK} breite={9} hoehe={1.7} pfosten={0.3} position={boden(0, 29.6)} />
-          <FilzSchild zeilen={SCHILD_GONDELN_HANDY} breite={4.3} hoehe={1.7} farbe="#F2C64F" pfosten={0.3} position={boden(-4.4, 32.4)} />
+          <FilzSchild zeilen={t.schilder.rolle} breite={9} hoehe={1.7} pfosten={0.3} position={boden(0, 27)} />
+          <FilzSchild zeilen={t.schilder.stack} breite={9} hoehe={1.7} pfosten={0.3} position={boden(0, 29.6)} />
+          <FilzSchild zeilen={t.schilder.gondelnHandy} breite={4.3} hoehe={1.7} farbe="#F2C64F" pfosten={0.3} position={boden(-4.4, 32.4)} />
         </>
       ) : (
         <>
-          <FilzSchild zeilen={SCHILD_ROLLE} breite={6.6} hoehe={1.25} pfosten={2.4} position={boden(-13.2, 17)} rotation={[0, 0.3, 0]} />
-          <FilzSchild zeilen={SCHILD_STACK} breite={6.6} hoehe={1.25} pfosten={2.4} position={boden(13.2, 17)} rotation={[0, -0.3, 0]} />
-          <FilzSchild zeilen={SCHILD_TAL} breite={2.8} hoehe={0.85} farbe="#F2C64F" pfosten={1.5} position={boden(-7.5, 27)} rotation={[0, 0.15, 0]} />
-          <FilzSchild zeilen={SCHILD_GONDELN} breite={5.2} hoehe={0.9} farbe="#F2C64F" pfosten={1.5} position={boden(9.2, 28.2)} rotation={[0, -0.2, 0]} />
+          <FilzSchild zeilen={t.schilder.rolle} breite={6.6} hoehe={1.25} pfosten={2.4} position={boden(-13.2, 17)} rotation={[0, 0.3, 0]} />
+          <FilzSchild zeilen={t.schilder.stack} breite={6.6} hoehe={1.25} pfosten={2.4} position={boden(13.2, 17)} rotation={[0, -0.3, 0]} />
+          <FilzSchild zeilen={t.schilder.tal} breite={t.schilder.talBreite} hoehe={0.85} farbe="#F2C64F" pfosten={1.5} position={boden(-7.5, 27)} rotation={[0, 0.15, 0]} />
+          <FilzSchild zeilen={t.schilder.gondeln} breite={5.2} hoehe={0.9} farbe="#F2C64F" pfosten={1.5} position={boden(9.2, 28.2)} rotation={[0, -0.2, 0]} />
         </>
       )}
       <PappStation position={boden(ORTE.bergstation[0], ORTE.bergstation[1])} rotation={[0, seilGier, 0]} />
@@ -877,7 +874,7 @@ export function Berg({ ruhig, sparsam, hochformat }: { ruhig: React.RefObject<bo
         <Stuetze key={i} hoehe={STUETZE_HOCH} breite={1.6} position={boden(x, z)} rotation={[0, seilGier + Math.PI / 2, 0]} />
       ))}
       <PappStation position={boden(ORTE.talstation[0], ORTE.talstation[1])} rotation={[0, seilGier + Math.PI, 0]} />
-      <Projektbahn punkte={seil} projekte={projekte} />
+      <Projektbahn punkte={seil} projekte={t.projekte} />
     </group>
   );
 }

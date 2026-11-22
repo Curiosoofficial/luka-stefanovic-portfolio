@@ -1,11 +1,11 @@
 import { BergFenster, BergNavigation } from "./BergFenster";
-import { kontaktEcht, profil, skills, ueberMich } from "@/data/profil";
-import { projekte } from "@/data/projects";
+import { BergText } from "./BergText";
 
 /**
  * Die Seite in der Berg-Welt: kein sichtbarer 2D-Inhalt, nur die 3D-Reise vom Gipfel ins Tal.
  *
- * - Oben eine Mini-Navigation: «Luka» und «Kontakt» (öffnet das Kontaktfenster). Sie ist nur im Startbild zu sehen
+ * - Die Seite gibt es auf Deutsch und Englisch (siehe sprache.ts und texte.ts).
+ * - Oben eine Mini-Navigation: «Luka», die Sprachwahl und «Kontakt» (öffnet das Kontaktfenster). Sie ist nur im Startbild zu sehen
  *   und blendet beim Hinunterscrollen aus.
  * - Die Inhalte sind Gegenstände in der Welt: Gondeln sind Projekte, ein Schild auf der Alp ist «Über mich»,
  *   der Briefkasten am See ist der Kontakt. Ein Klick öffnet das Infofenster (BergFenster).
@@ -22,57 +22,8 @@ export function BergSeite() {
       <BergFenster />
 
       <main id="inhalt" className="relative z-10">
-        {/* Unsichtbare Textfassung der ganzen Seite */}
-        <div className="sr-only">
-          <h1>
-            {profil.name}: {profil.rolle} ({profil.stack}) in {profil.ort}
-          </h1>
-          <p>{profil.status}</p>
-          <section aria-labelledby="titel-ueber">
-            <h2 id="titel-ueber">{ueberMich.titel}</h2>
-            <p>{ueberMich.text}</p>
-          </section>
-          <section aria-labelledby="titel-projekte">
-            <h2 id="titel-projekte">Projekte</h2>
-            <ul>
-              {projekte.map((p) => (
-                <li key={p.slug}>
-                  <h3>{p.titel}</h3>
-                  <p>
-                    {p.art}
-                    {p.hinweis ? ` (${p.hinweis})` : ""}: {p.kurz} Technik: {p.technik.join(", ")}.
-                  </p>
-                  {p.live && <a href={p.live}>{p.titel} live ansehen</a>}
-                  {p.github && <a href={p.github}>Code von {p.titel} auf GitHub</a>}
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section aria-labelledby="titel-skills">
-            <h2 id="titel-skills">Skills</h2>
-            <p>{[...skills.kern, ...skills.werkzeuge, ...skills.ausserdem].join(", ")}</p>
-          </section>
-          <section aria-labelledby="titel-kontakt">
-            <h2 id="titel-kontakt">Kontakt</h2>
-            {kontaktEcht.email && (
-              <p>
-                <a href={`mailto:${profil.email}`}>{profil.email}</a>
-              </p>
-            )}
-            <p>
-              Telefon: <a href={`tel:${profil.telefon.replace(/\s/g, "")}`}>{profil.telefon}</a>
-            </p>
-            <p>
-              <a href={profil.github}>GitHub</a>
-              {kontaktEcht.linkedin && (
-                <>
-                  {" "}
-                  · <a href={profil.linkedin}>LinkedIn</a>
-                </>
-              )}
-            </p>
-          </section>
-        </div>
+        {/* Unsichtbare Textfassung der ganzen Seite, in der gewählten Sprache */}
+        <BergText />
 
         {/* Die Scroll-Strecke: oben der Gipfel, unten das Tal mit dem Briefkasten für den Kontakt */}
         <div id="gipfel" aria-hidden className="h-px" />

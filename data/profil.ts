@@ -13,9 +13,10 @@ export const profil = {
   /** So wird die Nummer angezeigt; der Link zum Anrufen entsteht daraus ohne Leerzeichen */
   telefon: "+41 76 343 41 62",
   github: "https://github.com/Curiosoofficial",
-  // PLATZHALTER: Link zum eigenen LinkedIn-Profil eintragen
-  linkedin: "https://www.linkedin.com/",
+  linkedin: "https://www.linkedin.com/in/luka-stefanovic-8a734925b",
   firma: { name: "Curiosolution", url: "https://curiosolution.com" },
+  /** Lebenslauf als PDF in beiden Sprachen (Dateien in public/cv/) */
+  cv: { de: "/cv/Luka_Stefanovic_CV_Web_Developer_DE.pdf", en: "/cv/Luka_Stefanovic_CV_Web_Developer_EN.pdf" },
 
   // Optional: eigener Track als public/track.mp3 ablegen und hier "/track.mp3" eintragen.
   // Ohne Track erzeugt der Browser den Beat live (siehe components/sound/beat.ts).
